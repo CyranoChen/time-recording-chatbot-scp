@@ -1,0 +1,27 @@
+{
+  "name": "time-recording-chatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "time recording with face recognition",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CyranoChen/time-recording-chatbot-scp"
+  },
+  "scripts": {
+    "start": "node index.js time-recording-chatbot",
+    "stop": "pkill node index.js time-recording-chatbot",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "restart": "pkill node && npm run start"
+  },
+  "author": "Cyrano Chen",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4",
+    "request": "^2.88.0"
+  },
+  "engines": {
+    "node": "8.x"
+  }
+}

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Tine Recording Chatbot</title>
+    <link rel="shortcut icon" href="/favicon">
+    <link rel="stylesheet" href="resource/css/main.css">
+</head>
+
+<body class="skin-blue hold-transition sidebar-mini sidebar-collapse">
+    <div class="wrapper">
+        <header id="header" class="main-header"></header>
+        <aside id="sidebar" class="main-sidebar sidebar-dark-primary elevation-4"></aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+                    Console
+                    <small>Console of Time Recording</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                    <li class="active">Console</li>
+                </ol>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Main Features</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <!-- form start -->
+                    <form role="form">
+                        <div class="box-body">
+                            <div class="form-group col-sm-6">
+                                <label for="tb-image">Face Recognition</label>
+                                <input type="file" class="form-control" id="tb-image" placeholder="face uploader">
+                                <textarea id="ta-face-recognized" class="form-control" rows="5"></textarea>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="tb-chat">SAP Conversational AI</label>
+                                <input type="text" class="form-control" id="tb-chat" placeholder="say something">
+                                <textarea id="ta-chat-responsed" class="form-control" rows="5"></textarea>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <div class="box-footer">
+                            <div class="col-sm-6">
+                                <button type="button" id="btn-recognize" class="btn btn-default">Recognize</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" id="btn-chat" class="btn btn-default">Chat</button>
+                            </div>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">ByDesign Instance</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <!-- form start -->
+                    <form role="form">
+                        <div class="box-body">
+                            <div class="form-group col-sm-6">
+                                <label for="ta-employee-byd">Employee</label>
+                                <textarea id="ta-employee-byd" class="form-control" rows="4"></textarea>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="ta-project-byd">Project</label>
+                                <textarea id="ta-project-byd" class="form-control" rows="4"></textarea>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <div class="box-footer">
+                            <div class="col-sm-6 btn-group">
+                                <button type="button" id="btn-employee-byd" class="btn btn-default">Sync
+                                    Employees</button>
+                                <button type="button" id="btn-train-byd" class="btn btn-default">Train by Faces</button>
+                            </div>
+                            <div class="col-sm-6 btn-group">
+                                <button type="button" id="btn-project-byd" class="btn btn-default">Sync
+                                    Projects</button>
+                                <button type="button" id="btn-record-byd" class="btn btn-default">Record</button>
+                            </div>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">BusinessOne Instance</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <!-- form start -->
+                    <form role="form">
+                        <div class="box-body">
+                            <div class="form-group col-sm-6">
+                                <label for="ta-employee-b1">Employee</label>
+                                <textarea id="ta-employee-b1" class="form-control" rows="4"></textarea>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="ta-project-b1">Project</label>
+                                <textarea id="ta-project-b1" class="form-control" rows="4"></textarea>
+                            </div>
+                            <!-- /.box-body -->
+                        </div>
+                        <div class="box-footer">
+                            <div class="col-sm-6 btn-group">
+                                <button type="button" id="btn-employee-b1" class="btn btn-default">Sync
+                                    Employees</button>
+                                <button type="button" id="btn-train-b1" class="btn btn-default">Train by Faces</button>
+                            </div>
+                            <div class="col-sm-6 btn-group">
+                                <button type="button" id="btn-project-b1" class="btn btn-default">Sync
+                                    Projects</button>
+                                <button type="button" id="btn-record-b1" class="btn btn-default">Record</button>
+                            </div>
+                        </div>
+                        <!-- /.box-footer -->
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Main Footer -->
+        <footer id="footer" class="main-footer"></footer>
+    </div>
+    <!-- ./wrapper -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./resource/js/main.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#sidebar").load("./shared/sidebar.html", function () {
+                $(".sidebar li.index-page").removeClass("active");
+                $(".sidebar li.console-page").addClass("active");
+            });
+
+            var $tbImage = $("input#tb-image");
+            var $taFaceRecognized = $("textarea#ta-face-recognized");
+            var $btnRecognize = $("button#btn-recognize");
+
+            var $tbChat = $("input#tb-chat");
+            var $taChatResponsed = $("textarea#ta-chat-responsed");
+            var $btnChat = $("button#btn-chat");
+
+            var $taEmployeeByd = $("textarea#ta-employee-byd");
+            var $btnEmployeeByd = $("button#btn-employee-byd");
+            var $btnTrainByd = $("button#btn-train-byd");
+
+            var $taProjectByd = $("textarea#ta-project-byd");
+            var $btnProjectByd = $("button#btn-project-byd");
+            var $btnRecordByd = $("button#btn-record-byd");
+
+            var $taEmployeeB1 = $("textarea#ta-employee-b1");
+            var $btnEmployeeB1 = $("button#btn-employee-b1");
+            var $btnTrainB1 = $("button#btn-train-b1");
+
+            var $taProjectB1 = $("textarea#ta-project-b1");
+            var $btnProjectB1 = $("button#btn-project-b1");
+            var $btnRecordB1 = $("button#btn-record-b1");
+
+            $tbImage.on('change', (e) => {
+                if (typeof window.FileReader !== 'function') {
+                    alert("The file API isn't supported on this browser yet.");
+                    return;
+                }
+
+                let file = e.target.files[0];
+                console.log(file);
+                $taImageBase64.val('loading ...');
+                $btnRecognize.hide();
+
+                let fr = new FileReader();
+                fr.onload = () => {
+                    let img = new Image();
+                    img.onload = () => {
+                        let canvas = document.getElementById("cvs-image");
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        let ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0);
+
+                        $taImageBase64.val(canvas.toDataURL(file.type));
+                        $btnRecognize.show();
+                    };
+
+                    img.src = fr.result;
+                    $imgPreview.prop('src', img.src).css('max-width', '200px').css('max-height',
+                        '168px');
+
+                    $tbFilename.val(file.name);
+                };
+                fr.readAsDataURL(file);
+            });
+
+            $btnEmployeeB1.click(() => {
+                $btnEmployeeB1.text('Syncing').prop('disable', false);
+                $.post("/api/sync/b1", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $taEmployeeB1.val(d);
+                        $btnEmployeeB1.text(`Synced Employees (${d.length})`).prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnTrainB1.click(() => {
+                $btnTrainB1.text('Training').prop('disable', false);
+                $.post("/api/train", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $btnTrainB1.text(`Trained (${Object.keys(d).length})`).prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnEmployeeByd.click(() => {
+                $btnEmployeeByd.text('Syncing').prop('disable', false);
+                $.post("/api/sync/byd", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $taEmployeeByd.val(JSON.stringify(d, null, 2));
+                        $btnEmployeeByd.text(`Synced Employees (${d.length})`).prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnTrainByd.click(() => {
+                $btnTrainByd.text('Training').prop('disable', false);
+                $.post("/api/train", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $btnTrainByd.text(`Trained (${Object.keys(d).length})`).prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnRecognize.click(() => {
+                var filename = $tbFilename.val();
+                var imageBase64 = $taImageBase64.val();
+
+                if (filename != '' && imageBase64 != '') {
+                    $btnRecognize.text('Recognizing').prop('disabled', true);
+                    const settings = {
+                        "async": true,
+                        "crossDomain": true,
+                        "url": "/api/recognize",
+                        "method": "POST",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "cache-control": "no-cache",
+                        },
+                        "processData": false,
+                        "data": JSON.stringify({
+                            "filename": filename,
+                            "image": imageBase64
+                        })
+                    };
+
+                    $.ajax(settings).done((res) => {
+                        console.log(res);
+                        $taRawResponse.val(JSON.stringify(res));
+                        $pnlPreview.empty().hide();
+
+                        if (res && res.state === 'success' && res.data.length > 0) {
+                            $pnlPreview.append(
+                                    `<label class="col-sm-3 control-label">preview</label>`)
+                                .show();
+                            $.each(res.data, function (i, obj) {
+                                let item = $("<div />", {
+                                        class: "col-sm-3"
+                                    })
+                                    .append($(
+                                        `<h4>${obj.name} (${obj.score.toFixed(2)})</h4>`
+                                    ))
+                                    .append($(
+                                        `<p>code: ${obj.code} | quantity: ${obj.quantity} | price: ${obj.price}</p>`
+                                    ))
+                                    .append($("<img />", {
+                                        src: obj.image,
+                                        style: 'width:100%;max-width:200px'
+                                    }));
+                                $pnlPreview.append(item);
+                            });
+                        } else {
+                            alert('no smiliar item found')
+                        }
+
+                        $pnlResult.fadeIn(1000);
+                        $btnRecognize.text('Recognize').prop('disabled', false);
+                    }).fail((res) => {
+                        alert(`${res.status} (${res.statusText})`);
+                    });
+                } else {
+                    alert('please upload the input image');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
