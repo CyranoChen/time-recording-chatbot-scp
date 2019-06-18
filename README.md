@@ -1,4 +1,4 @@
-# Spare Part Recognition - A Simple Integration between SAP Business One / ByDesign and SAP Leonardo
+# Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Leonardo
 
 ![avatar](https://jam4.sapjam.com/profile/vQ2WGFrz1l1cmyPIZX6G8c/documents/exUx6J98mB0A3RqbVkE0W1/thumbnail?max_x=1200&max_y=1200)
 

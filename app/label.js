@@ -14,17 +14,17 @@ module.exports = {
 
 // sync the dataset of product items from b1 hana instances
 async function syncDatasetsB1() {
-    var result = await b1service.itemList();
+    var result = await b1service.employeeList();
 
     if (result && result.hasOwnProperty('value') && result.value.length > 0) {
-        console.log('b1 itemList length:', result.value.length);
+        console.log('b1 employees length:', result.value.length);
 
-        const productItems = b1service.processDataset(result);
-        fs.writeFile('./app/label/datasets-b1.json', JSON.stringify(productItems), 'utf-8', function (err) {
+        const employees = b1service.processDataset(result);
+        fs.writeFile('./app/label/datasets-b1.json', JSON.stringify(employees), 'utf-8', function (err) {
             if (err) { next(err); }
         });
 
-        return productItems;
+        return employees;
     }
 
     return [];
@@ -33,9 +33,6 @@ async function syncDatasetsB1() {
 // sync the dataset of employees from bydesign
 async function syncDatasetsByd() {
     var result = await bydservice.employeeList();
-    console.log(typeof result);
-    console.log(result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0);
-
     if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
         console.log('byd employees length:', result.d.results.length);
 
@@ -50,45 +47,46 @@ async function syncDatasetsByd() {
     return [];
 }
 
-var _itemLabels;
+var _employeeLabels;
 function getLabels(key) {
-    if (!_itemLabels) {
-        _itemLabels = JSON.parse(fs.readFileSync('./app/label/labels.json'));
+    if (!_employeeLabels) {
+        _employeeLabels = JSON.parse(fs.readFileSync('./app/label/labels.json'));
     }
 
     if (key) {
-        return _itemLabels.hasOwnProperty(key) ? _itemLabels[key] : null;
+        return _employeeLabels.hasOwnProperty(key) ? _employeeLabels[key] : null;
     } else {
-        return _itemLabels;
+        return _employeeLabels;
     }
 }
 
 // initial the labels.json by b1 product items dataset
 async function initialLabels(dataset = 'all') {
-    _itemLabels = {};
+    _employeeLabels = {};
     if ((dataset == 'all' || dataset == 'b1') && fs.existsSync('./app/label/datasets-b1.json')) {
         const ds = JSON.parse(fs.readFileSync('./app/label/datasets-b1.json'));
 
         if (ds && ds.length > 0) {
             let count = 0;
             for (let item of ds) {
-                if (item.Picture && item.Picture != '') {
-                    let result = await leon.featureExtraction(item.ItemCode + '.jpg', filepath = './app/label/pictures/');
-                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('featureVectors')) {
-                        _itemLabels[item.ItemCode] = {
-                            "name": item.ItemName,
-                            "price": `${item.ItemPrices[0].Currency} ${item.ItemPrices[0].Price}`,
-                            "quantity": item.QuantityOnStock,
-                            "featureVectors": result.predictions[0].featureVectors,
+                if (item.Picture && fs.existsSync(`./app/label/pictures/byd/${item.Picture}.jpg`)) {
+                    let result = await leon.featureExtraction(item.ItemCode + '.jpg', filepath = './app/label/pictures/b1/');
+                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
+                        result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
+                        _employeeLabels[item.InternalID] = {
+                            "id": item.EmployeeID,
+                            "name": item.FormattedName,
+                            "faceFeature": result.predictions[0].faces[0].face_feature,
+                            "faceLocation": result.predictions[0].faces[0].face_location,
                             "application": "b1"
                         };
                         count += 1;
                     } else {
-                        console.log('err on feature extraction', item.ItemCode)
+                        console.log('err on face feature extraction', item.InternalID)
                     }
                 }
             }
-            console.log('b1 item labels:', count);
+            console.log('b1 employee labels:', count);
         }
     }
 
@@ -98,33 +96,34 @@ async function initialLabels(dataset = 'all') {
         if (ds && ds.length > 0) {
             let count = 0;
             for (let item of ds) {
-                if (item.MaterialAttachmentFolder && item.MaterialAttachmentFolder.length > 0) {
-                    let result = await leon.featureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/');
-                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('featureVectors')) {
-                        _itemLabels[item.InternalID] = {
-                            "name": item.Description,
-                            "price": '',
-                            "quantity": item.MaterialQuantityConversion.length > 0 ? int(item.MaterialQuantityConversion[0].Quantity) : '',
-                            "featureVectors": result.predictions[0].featureVectors,
+                if (item.InternalID && fs.existsSync(`./app/label/pictures/byd/${item.InternalID}.jpg`)) {
+                    let result = await leon.featureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/');
+                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
+                        result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
+                        _employeeLabels[item.InternalID] = {
+                            "id": item.EmployeeID,
+                            "name": item.FormattedName,
+                            "faceFeature": result.predictions[0].faces[0].face_feature,
+                            "faceLocation": result.predictions[0].faces[0].face_location,
                             "application": "byd"
                         };
                         count += 1;
                     } else {
-                        console.log('err on feature extraction', item.ItemCode)
+                        console.log('err on face feature extraction', item.InternalID)
                     }
                 }
             }
-            console.log('byd item labels:', count);
+            console.log('byd employee labels:', count);
         }
     }
 
-    console.log('total _itemLabels keys:', Object.keys(_itemLabels).length);
+    console.log('total _employeeLabels keys:', Object.keys(_employeeLabels).length);
 
-    fs.writeFile('./app/label/labels.json', JSON.stringify(_itemLabels), 'utf-8', function (err) {
+    fs.writeFile('./app/label/labels.json', JSON.stringify(_employeeLabels), 'utf-8', function (err) {
         if (err) { next(err); }
     });
 
 
-    return _itemLabels;
+    return _employeeLabels;
 }
 

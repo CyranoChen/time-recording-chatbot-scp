@@ -4,8 +4,7 @@ const fs = require('fs');
 const config = require('./config');
 
 module.exports = {
-    itemList,
-    itemImage,
+    employeeList,
     processDataset,
 };
 
@@ -38,7 +37,7 @@ function getCookies() {
     });
 }
 
-async function itemList() {
+async function employeeList() {
     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
         const cookie = await getCookies();
         if (!cookie) { return null; }
@@ -47,7 +46,7 @@ async function itemList() {
     return new Promise((resolve, reject) => {
         const j = req.jar();
         const cookie = req.cookie(_cookieString);
-        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/Items';
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/EmployeesInfo';
         j.setCookie(cookie, url);
         req.get(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
             if (err) { reject(err); }
@@ -56,7 +55,7 @@ async function itemList() {
     });
 }
 
-async function itemImage(itemId) {
+async function employeeImage(itemId) {
     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
         const cookie = await getCookies();
         if (!cookie) { return null; }
@@ -76,16 +75,27 @@ async function itemImage(itemId) {
 }
 
 function processDataset(raw) {
+    let results = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
-        if (!fs.existsSync('./app/label/pictures')) {
-            fs.mkdirSync('./app/label/pictures');
+        if (!fs.existsSync('./app/label/pictures/b1')) {
+            fs.mkdirSync('./app/label/pictures/b1');
         }
 
         for (let item of raw.value) {
+            // todo
             if (item.Picture && item.Picture != '') {
-                itemImage(item.ItemCode);
+                results.push(
+                    {
+                        "InternalID": item.InternalID,
+                        "EmployeeID": item.EmployeeID,
+                        "GivenName": item.GivenName,
+                        "FamilyName": item.FamilyName,
+                        "FormattedName": item.FormattedName
+                    }
+                )
+                // employeeImage(item.ItemCode);
             }
         }
     }
-    return raw.value;
+    return results;
 }

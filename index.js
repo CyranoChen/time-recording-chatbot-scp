@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const fs = require('fs');
+const uuidv4 = require('uuid/v4');
 const http = require('http');
 const https = require('https');
 
@@ -37,8 +38,9 @@ app.post('/api/recognize', async function (req, res, next) {
         res.sendStatus(400);
     }
 
-    var filename = req.body.filename;
-    console.log('input:', req.body.filename);
+    let filename = req.body.filename;
+    let filenameUnqiue = uuidv4().replace('-', '') + '.jpg';
+    console.log('input:', req.body.filename, uuid);
 
     let base64Data = req.body.image.replace(/^data:image\/png;base64,/, '').replace(/^data:image\/jpeg;base64,/, '');
     // let contentType = req.body.image.substring(0, req.body.image.indexOf(';base64,'));
@@ -48,7 +50,7 @@ app.post('/api/recognize', async function (req, res, next) {
         fs.mkdirSync('./app/sample');
     }
 
-    fs.writeFileSync('./app/sample/' + filename, base64Data, 'base64', function (err) {
+    fs.writeFileSync('./app/sample/'+ filenameUnqiue, base64Data, 'base64', function (err) {
         if (err) {
             next(err);
             res.sendStatus(415);
@@ -56,7 +58,7 @@ app.post('/api/recognize', async function (req, res, next) {
         }
     });
 
-    var result = await recognize.search(filename);
+    var result = await recognize.search(filenameUnqiue);
     console.log('similarity scoring:', result);
 
     if (result && result.hasOwnProperty('predictions') && result.predictions.length > 0 &&
@@ -105,6 +107,20 @@ app.post('/api/sync/byd', async function (req, res, next) {
 app.post('/api/train', async function (req, res, next) {
     console.log('[initialLabels]', new Date().toISOString());
     var result = await label.initialLabels(dataset = _configs.GENERAL.DATASET);
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/train/b1', async function (req, res, next) {
+    console.log('[initialLabels]', new Date().toISOString());
+    var result = await label.initialLabels(dataset = 'b1');
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/train/byd', async function (req, res, next) {
+    console.log('[initialLabels]', new Date().toISOString());
+    var result = await label.initialLabels(dataset = 'byd');
     res.send(result);
     console.log('-'.repeat(100));
 });

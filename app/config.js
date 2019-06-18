@@ -6,11 +6,11 @@ module.exports = {
             "GENERAL": {
                 "THRESHOLD_SIMILAR": Number(process.env.GENERAL_THRESHOLD_SIMILAR),
                 "THRESHOLD_NUM_SIMILAR": Number(process.env.GENERAL_THRESHOLD_NUM_SIMILAR),
-                "DATASETS": "all".toLowerCase()
+                "DATASETS": "byd".toLowerCase()
             },
             "LEONARDO": {
                 "APIKEY": process.env.LEON_APIKEY,
-                "IMAGEFEATUREEXTRACTION_APIURL": process.env.LEON_IMAGEFEATUREEXTRACTION_APIURL,
+                "FACEFEATUREEXTRACTION_APIURL": process.env.LEON_FACEFEATUREEXTRACTION_APIURL,
                 "SIMILARITYSCORING_APIURL": process.env.LEON_SIMILARITYSCORING_APIURL
             },
             "BUSINESSONE": {

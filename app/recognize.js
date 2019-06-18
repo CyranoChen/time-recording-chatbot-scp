@@ -4,16 +4,17 @@ const leon = require('./leonardo');
 const label = require('./label')
 
 module.exports = {
-    search: searchImage,
+    search: searchFace,
     score: similarityScoring,
     export: exportResult
 };
 
-async function searchImage(filename) {
-    var result = await leon.featureExtraction(filename);
-    console.log('feature extraction:', result);
+async function searchFace(filename) {
+    var result = await leon.faceFeatureExtraction(filename);
+    console.log('face feature extraction:', result);
 
-    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('featureVectors')) {
+    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
+        result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
         var condinates = [];
         const labels = label.getLabels();
         for (let k in labels) {
@@ -21,7 +22,7 @@ async function searchImage(filename) {
         }
 
         const vectors = {
-            "0": [{ "id": filename, "vector": result.predictions[0].featureVectors }],
+            "0": [{ "id": filename, "vector": result.predictions[0].faces[0].face_feature }],
             "1": condinates
         };
         // console.log(vectors);

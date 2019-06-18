@@ -4,7 +4,7 @@ const fs = require('fs');
 const config = require('./config');
 
 module.exports = {
-    featureExtraction,
+    faceFeatureExtraction,
     similarityScoring
 };
 
@@ -16,10 +16,10 @@ const headers = {
     // 'content-type' : 'multipart/form-data'
 };
 
-function featureExtraction(filename, filepath = './app/sample/') {
+function faceFeatureExtraction(filename, filepath = './app/sample/') {
     console.log(filepath + filename);
     return new Promise((resolve, reject) => {
-        req.post(_configs.LEONARDO.IMAGEFEATUREEXTRACTION_APIURL, {
+        req.post(_configs.LEONARDO.FACEFEATUREEXTRACTION_APIURL, {
             formData: {
                 files: fs.createReadStream(filepath + filename)
             },

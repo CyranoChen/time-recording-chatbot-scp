@@ -69,7 +69,7 @@ async function employeeList() {
 }
 
 function employeeImage(employeeId, employeeImage) {
-    fs.writeFile(`./app/label/pictures/${employeeId}.jpg`, employeeImage.Binary, 'base64', function (err) {
+    fs.writeFile(`./app/label/pictures/byd/${employeeId}.jpg`, employeeImage.Binary, 'base64', function (err) {
         if (err) {
             next(err);
             res.sendStatus(415);
@@ -81,15 +81,19 @@ function employeeImage(employeeId, employeeImage) {
 function processDataset(raw) {
     let results = [];
     if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
-        if (!fs.existsSync('./app/label/pictures')) {
-            fs.mkdirSync('./app/label/pictures');
+        if (!fs.existsSync('./app/label/pictures/byd')) {
+            fs.mkdirSync('./app/label/pictures/byd');
         }
 
         for (let item of raw.d.results) {
             if (item.EmployeeAttachmentFolder && item.EmployeeAttachmentFolder.length > 0) {
-                results.append(
+                results.push(
                     {
-                        
+                        "InternalID": item.InternalID,
+                        "EmployeeID": item.EmployeeID,
+                        "GivenName": item.GivenName,
+                        "FamilyName": item.FamilyName,
+                        "FormattedName": item.FormattedName
                     }
                 )
                 employeeImage(item.InternalID, item.EmployeeAttachmentFolder[0]);
