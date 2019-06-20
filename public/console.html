@@ -39,13 +39,22 @@
                         <div class="box-body">
                             <div class="form-group col-sm-6">
                                 <label for="tb-image">Face Recognition</label>
-                                <input type="file" class="form-control" id="tb-image" placeholder="face uploader">
-                                <textarea id="ta-face-recognized" class="form-control" rows="5"></textarea>
+                                <input type="file" class="form-control" id="tb-image" placeholder="face uploader" />
+                                <input type="hidden" class="form-control" id="tb-image-base64" />
+                                <div class="form-group">
+                                    <div class="col-sm-3 control-label" style="padding: 0">
+                                        <img id="img-preview" for="tb-image" />
+                                        <canvas id="cvs-image" class="hide"></canvas>
+                                    </div>
+                                    <div class="col-sm-9" style="padding: 0">
+                                        <textarea id="ta-face-recognized" class="form-control" rows="8"></textarea>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="tb-chat">SAP Conversational AI</label>
                                 <input type="text" class="form-control" id="tb-chat" placeholder="say something">
-                                <textarea id="ta-chat-responsed" class="form-control" rows="5"></textarea>
+                                <textarea id="ta-chat-responsed" class="form-control" rows="8"></textarea>
                             </div>
                             <!-- /.box-body -->
                         </div>
@@ -144,6 +153,8 @@
             });
 
             var $tbImage = $("input#tb-image");
+            var $tbImageBase64 = $("input#tb-image-base64");
+            var $imgPreview = $("img#img-preview");
             var $taFaceRecognized = $("textarea#ta-face-recognized");
             var $btnRecognize = $("button#btn-recognize");
 
@@ -175,7 +186,7 @@
 
                 let file = e.target.files[0];
                 console.log(file);
-                $taImageBase64.val('loading ...');
+                // $tbImageBase64.val('loading ...');
                 $btnRecognize.hide();
 
                 let fr = new FileReader();
@@ -188,7 +199,7 @@
                         let ctx = canvas.getContext("2d");
                         ctx.drawImage(img, 0, 0);
 
-                        $taImageBase64.val(canvas.toDataURL(file.type));
+                        $tbImageBase64.val(canvas.toDataURL(file.type));
                         $btnRecognize.show();
                     };
 
@@ -196,7 +207,7 @@
                     $imgPreview.prop('src', img.src).css('max-width', '200px').css('max-height',
                         '168px');
 
-                    $tbFilename.val(file.name);
+                    // $tbFilename.val(file.name);
                 };
                 fr.readAsDataURL(file);
             });
@@ -206,8 +217,9 @@
                 $.post("/api/sync/b1", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $taEmployeeB1.val(d);
-                        $btnEmployeeB1.text(`Synced Employees (${d.length})`).prop('disable', true);
+                        $taEmployeeB1.val(JSON.stringify(d, null, 2));
+                        $btnEmployeeB1.text(`Synced Employees (${d.length})`).prop('disable',
+                            true);
                     } else {
                         alert(status);
                     }
@@ -216,10 +228,11 @@
 
             $btnTrainB1.click(() => {
                 $btnTrainB1.text('Training').prop('disable', false);
-                $.post("/api/train", function (d, status) {
+                $.post("/api/train/b1", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $btnTrainB1.text(`Trained (${Object.keys(d).length})`).prop('disable', true);
+                        $btnTrainB1.text(`Trained (${Object.keys(d).length})`).prop('disable',
+                            true);
                     } else {
                         alert(status);
                     }
@@ -232,7 +245,8 @@
                     if (status === 'success' && d) {
                         console.log(d);
                         $taEmployeeByd.val(JSON.stringify(d, null, 2));
-                        $btnEmployeeByd.text(`Synced Employees (${d.length})`).prop('disable', true);
+                        $btnEmployeeByd.text(`Synced Employees (${d.length})`).prop('disable',
+                            true);
                     } else {
                         alert(status);
                     }
@@ -241,10 +255,11 @@
 
             $btnTrainByd.click(() => {
                 $btnTrainByd.text('Training').prop('disable', false);
-                $.post("/api/train", function (d, status) {
+                $.post("/api/train/byd", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $btnTrainByd.text(`Trained (${Object.keys(d).length})`).prop('disable', true);
+                        $btnTrainByd.text(`Trained (${Object.keys(d).length})`).prop('disable',
+                            true);
                     } else {
                         alert(status);
                     }
@@ -252,8 +267,8 @@
             });
 
             $btnRecognize.click(() => {
-                var filename = $tbFilename.val();
-                var imageBase64 = $taImageBase64.val();
+                var filename = $tbImage.val().split('\\').pop();
+                var imageBase64 = $tbImageBase64.val();
 
                 if (filename != '' && imageBase64 != '') {
                     $btnRecognize.text('Recognizing').prop('disabled', true);
@@ -275,34 +290,15 @@
 
                     $.ajax(settings).done((res) => {
                         console.log(res);
-                        $taRawResponse.val(JSON.stringify(res));
-                        $pnlPreview.empty().hide();
+                        $taFaceRecognized.val('');
 
                         if (res && res.state === 'success' && res.data.length > 0) {
-                            $pnlPreview.append(
-                                    `<label class="col-sm-3 control-label">preview</label>`)
-                                .show();
-                            $.each(res.data, function (i, obj) {
-                                let item = $("<div />", {
-                                        class: "col-sm-3"
-                                    })
-                                    .append($(
-                                        `<h4>${obj.name} (${obj.score.toFixed(2)})</h4>`
-                                    ))
-                                    .append($(
-                                        `<p>code: ${obj.code} | quantity: ${obj.quantity} | price: ${obj.price}</p>`
-                                    ))
-                                    .append($("<img />", {
-                                        src: obj.image,
-                                        style: 'width:100%;max-width:200px'
-                                    }));
-                                $pnlPreview.append(item);
-                            });
+                            console.log(res);
+                            $taFaceRecognized.val(JSON.stringify(res, null, 2));
                         } else {
                             alert('no smiliar item found')
                         }
 
-                        $pnlResult.fadeIn(1000);
                         $btnRecognize.text('Recognize').prop('disabled', false);
                     }).fail((res) => {
                         alert(`${res.status} (${res.statusText})`);

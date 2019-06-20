@@ -70,12 +70,12 @@ async function initialLabels(dataset = 'all') {
             let count = 0;
             for (let item of ds) {
                 if (item.Picture && fs.existsSync(`./app/label/pictures/byd/${item.Picture}.jpg`)) {
-                    let result = await leon.featureExtraction(item.ItemCode + '.jpg', filepath = './app/label/pictures/b1/');
+                    let result = await leon.faceFeatureExtraction(item.ItemCode + '.jpg', filepath = './app/label/pictures/b1/');
                     if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
                         result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
-                        _employeeLabels[item.InternalID] = {
+                        _employeeLabels[item.ApplicationUserID] = {
                             "id": item.EmployeeID,
-                            "name": item.FormattedName,
+                            "name": item.FirstName + ' ' + item.LastName,
                             "faceFeature": result.predictions[0].faces[0].face_feature,
                             "faceLocation": result.predictions[0].faces[0].face_location,
                             "application": "b1"
@@ -97,7 +97,7 @@ async function initialLabels(dataset = 'all') {
             let count = 0;
             for (let item of ds) {
                 if (item.InternalID && fs.existsSync(`./app/label/pictures/byd/${item.InternalID}.jpg`)) {
-                    let result = await leon.featureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/');
+                    let result = await leon.faceFeatureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/');
                     if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
                         result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
                         _employeeLabels[item.InternalID] = {

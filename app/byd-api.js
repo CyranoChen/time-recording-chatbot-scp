@@ -81,6 +81,10 @@ function employeeImage(employeeId, employeeImage) {
 function processDataset(raw) {
     let results = [];
     if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
+        if (!fs.existsSync('./app/label/pictures')) {
+            fs.mkdirSync('./app/label/pictures');
+        }
+
         if (!fs.existsSync('./app/label/pictures/byd')) {
             fs.mkdirSync('./app/label/pictures/byd');
         }

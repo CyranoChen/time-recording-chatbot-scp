@@ -5,7 +5,7 @@ const label = require('./label')
 
 module.exports = {
     search: searchFace,
-    score: similarityScoring,
+    //score: similarityScoring,
     export: exportResult
 };
 
@@ -18,14 +18,14 @@ async function searchFace(filename) {
         var condinates = [];
         const labels = label.getLabels();
         for (let k in labels) {
-            condinates.push({ "id": k, "vector": labels[k].featureVectors });
+            condinates.push({ "id": k, "vector": labels[k].faceFeature });
         }
 
         const vectors = {
             "0": [{ "id": filename, "vector": result.predictions[0].faces[0].face_feature }],
             "1": condinates
         };
-        // console.log(vectors);
+        console.log(vectors);
 
         return await leon.similarityScoring(vectors);
     } else {
@@ -53,12 +53,12 @@ function exportResult(raw) {
         let item = label.getLabels(r.id);
         if (item) {
             results.push({
-                code: r.id,
+                id: r.id,
+                eid: item.id,
                 name: item.name,
-                price: item.price,
-                quantity: item.quantity,
+                app: item.application,
                 score: r.score,
-                image: `/library/${r.id}.jpg`
+                image: `/library/${item.application}/${r.id}.jpg`
             });
         }
     }

@@ -32,7 +32,7 @@ function faceFeatureExtraction(filename, filepath = './app/sample/') {
     });
 }
 
-function similarityScoring(vectors, numSimilarVectors = 5) {
+function similarityScoring(vectors, numSimilarVectors = _configs.GENERAL.THRESHOLD_NUM_SIMILAR) {
     return new Promise((resolve, reject) => {
         req.post(_configs.LEONARDO.SIMILARITYSCORING_APIURL, {
             formData: {

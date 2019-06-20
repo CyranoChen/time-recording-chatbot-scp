@@ -59,3 +59,7 @@ typings/
 
 # next.js build output
 .next
+
+app/label/datasets*.json
+app/label/pictures/
+app/sample/

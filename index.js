@@ -39,8 +39,8 @@ app.post('/api/recognize', async function (req, res, next) {
     }
 
     let filename = req.body.filename;
-    let filenameUnqiue = uuidv4().replace('-', '') + '.jpg';
-    console.log('input:', req.body.filename, uuid);
+    let filenameUnqiue = uuidv4().split('-').join('') + '.' + filename.split('.').pop();
+    console.log('input:', req.body.filename, filenameUnqiue);
 
     let base64Data = req.body.image.replace(/^data:image\/png;base64,/, '').replace(/^data:image\/jpeg;base64,/, '');
     // let contentType = req.body.image.substring(0, req.body.image.indexOf(';base64,'));
@@ -50,7 +50,7 @@ app.post('/api/recognize', async function (req, res, next) {
         fs.mkdirSync('./app/sample');
     }
 
-    fs.writeFileSync('./app/sample/'+ filenameUnqiue, base64Data, 'base64', function (err) {
+    fs.writeFileSync('./app/sample/' + filenameUnqiue, base64Data, 'base64', function (err) {
         if (err) {
             next(err);
             res.sendStatus(415);
@@ -62,7 +62,7 @@ app.post('/api/recognize', async function (req, res, next) {
     console.log('similarity scoring:', result);
 
     if (result && result.hasOwnProperty('predictions') && result.predictions.length > 0 &&
-        result.predictions[0].hasOwnProperty('id') && (result.predictions[0].id == filename) &&
+        result.predictions[0].hasOwnProperty('id') && (result.predictions[0].id == filenameUnqiue) &&
         result.predictions[0].hasOwnProperty('similarVectors') && result.predictions[0].similarVectors.length > 0) {
         var condinates = [];
 
@@ -73,12 +73,12 @@ app.post('/api/recognize', async function (req, res, next) {
         }
 
         if (condinates.length > 0) {
-            res.send({ "state": "success", "filename": filename, "data": recognize.export(condinates), "raw": result.predictions[0].similarVectors });
+            res.send({ "state": "success", "filename": filenameUnqiue, "data": recognize.export(condinates), "raw": result.predictions[0].similarVectors });
             console.log(condinates);
             console.log('-'.repeat(100));
             return;
         } else {
-            res.send({ "state": "success", "filename": filename, "data": [], "raw": result.predictions[0].similarVectors });
+            res.send({ "state": "success", "filename": filenameUnqiue, "data": [], "raw": result.predictions[0].similarVectors });
             console.log('no condinates');
             console.log('-'.repeat(100));
             return;
