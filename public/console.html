@@ -54,6 +54,7 @@
                             <div class="form-group col-sm-6">
                                 <label for="tb-chat">SAP Conversational AI</label>
                                 <input type="text" class="form-control" id="tb-chat" placeholder="say something">
+                                <input type="hidden" class="form-control" id="tb-chat-session" />
                                 <textarea id="ta-chat-responsed" class="form-control" rows="8"></textarea>
                             </div>
                             <!-- /.box-body -->
@@ -79,11 +80,11 @@
                         <div class="box-body">
                             <div class="form-group col-sm-6">
                                 <label for="ta-employee-byd">Employee</label>
-                                <textarea id="ta-employee-byd" class="form-control" rows="4"></textarea>
+                                <textarea id="ta-employee-byd" class="form-control" rows="5"></textarea>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="ta-project-byd">Project</label>
-                                <textarea id="ta-project-byd" class="form-control" rows="4"></textarea>
+                                <textarea id="ta-project-byd" class="form-control" rows="5"></textarea>
                             </div>
                             <!-- /.box-body -->
                         </div>
@@ -112,11 +113,11 @@
                         <div class="box-body">
                             <div class="form-group col-sm-6">
                                 <label for="ta-employee-b1">Employee</label>
-                                <textarea id="ta-employee-b1" class="form-control" rows="4"></textarea>
+                                <textarea id="ta-employee-b1" class="form-control" rows="5"></textarea>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="ta-project-b1">Project</label>
-                                <textarea id="ta-project-b1" class="form-control" rows="4"></textarea>
+                                <textarea id="ta-project-b1" class="form-control" rows="5"></textarea>
                             </div>
                             <!-- /.box-body -->
                         </div>
@@ -147,6 +148,10 @@
     <script src="./resource/js/main.js"></script>
     <script type="text/javascript">
         $(function () {
+            // load shared web parts
+            $("#header").load("./shared/header.html");
+            $("#footer").load("./shared/footer.html");
+            
             $("#sidebar").load("./shared/sidebar.html", function () {
                 $(".sidebar li.index-page").removeClass("active");
                 $(".sidebar li.console-page").addClass("active");
@@ -159,6 +164,7 @@
             var $btnRecognize = $("button#btn-recognize");
 
             var $tbChat = $("input#tb-chat");
+            var $tbChatSession = $("input#tb-chat-session");
             var $taChatResponsed = $("textarea#ta-chat-responsed");
             var $btnChat = $("button#btn-chat");
 
@@ -212,9 +218,63 @@
                 fr.readAsDataURL(file);
             });
 
+            $tbChatSession.val(new Date().getTime());
+
+            $tbChat.on('keydown', (e) => {
+                if (e.which == 13) {
+                    if ($tbChat.val() != '') {
+                        $btnChat.click();
+                    }
+                    return false;
+                }
+            });
+
+            $btnChat.click(() => {
+                if ($tbChat.val() == '') {
+                    alert("Please say something in chat box.")
+                    return;
+                }
+
+                $btnChat.text('Submitting').prop('disable', false);
+                const settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": "https://api.recast.ai/build/v1/dialog",
+                    "method": "POST",
+                    "headers": {
+                        "Authorization": "Token 2a61f1569c49dab94f959c4df9fa8f73",
+                        "Content-Type": "application/json",
+                        "cache-control": "no-cache",
+                    },
+                    "processData": false,
+                    "data": JSON.stringify({
+                        "message": {
+                            "content": $tbChat.val(),
+                            "type": "text"
+                        },
+                        "conversation_id": $tbChatSession.val()
+                    })
+                };
+
+                $.ajax(settings).done((res) => {
+                    console.log(res);
+                    $taChatResponsed.val('');
+
+                    if (res) {
+                        $taChatResponsed.val(JSON.stringify(res, null, 2));
+                    } else {
+                        alert('error on chatting');
+                    }
+
+                    $btnChat.text(`Chat`).prop('disable', true);
+                }).fail((res) => {
+                    alert(`${res.status} (${res.statusText})`);
+                });
+            });
+
             $btnEmployeeB1.click(() => {
                 $btnEmployeeB1.text('Syncing').prop('disable', false);
-                $.post("/api/sync/b1", function (d, status) {
+                $.post("/api/sync/b1/employee", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
                         $taEmployeeB1.val(JSON.stringify(d, null, 2));
@@ -239,9 +299,24 @@
                 });
             });
 
+            $btnProjectB1.click(() => {
+                $btnProjectB1.text('Syncing').prop('disable', false);
+                $.post("/api/sync/b1/project", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $taProjectB1.val(JSON.stringify(d.value, null, 2));
+                        $btnProjectB1.text(`Synced Projects (${d.value.length})`).prop(
+                            'disable',
+                            true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
             $btnEmployeeByd.click(() => {
                 $btnEmployeeByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd", function (d, status) {
+                $.post("/api/sync/byd/employee", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
                         $taEmployeeByd.val(JSON.stringify(d, null, 2));
@@ -259,6 +334,20 @@
                     if (status === 'success' && d) {
                         console.log(d);
                         $btnTrainByd.text(`Trained (${Object.keys(d).length})`).prop('disable',
+                            true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnProjectByd.click(() => {
+                $btnProjectByd.text('Syncing').prop('disable', false);
+                $.post("/api/sync/byd/project", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $taProjectByd.val(JSON.stringify(d, null, 2));
+                        $btnProjectByd.text(`Synced Projects (${d.length})`).prop('disable',
                             true);
                     } else {
                         alert(status);

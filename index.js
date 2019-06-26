@@ -9,6 +9,8 @@ const https = require('https');
 const config = require('./app/config');
 const label = require('./app/label');
 const recognize = require('./app/recognize');
+const b1service = require('./app/b1-sl');
+const bydservice = require('./app/byd-api');
 
 // ssl cert
 // const credentials = {
@@ -23,6 +25,8 @@ app.use(bodyParser.json({ limit: '20mb' }));
 
 // static files
 app.use('/', express.static('./public'));
+app.use('/camera', express.static('./public/camera.html'));
+app.use('/chat', express.static('./public/chat.html'));
 app.use('/console', express.static('./public/console.html'));
 app.use('/favicon', express.static('./favicon.ico'));
 // app.use('/dist', express.static('./dist'));
@@ -90,16 +94,30 @@ app.post('/api/recognize', async function (req, res, next) {
     console.log('-'.repeat(100));
 });
 
-app.post('/api/sync/b1', async function (req, res, next) {
-    console.log('[syncDatasets b1]', new Date().toISOString());
+app.post('/api/sync/b1/employee', async function (req, res, next) {
+    console.log('[syncDatasets b1 employee]', new Date().toISOString());
     var result = await label.syncDatasetsB1();
     res.send(result);
     console.log('-'.repeat(100));
 });
 
-app.post('/api/sync/byd', async function (req, res, next) {
-    console.log('[syncDatasets byd]', new Date().toISOString());
+app.post('/api/sync/byd/employee', async function (req, res, next) {
+    console.log('[syncDatasets byd employee]', new Date().toISOString());
     var result = await label.syncDatasetsByd();
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/sync/b1/project', async function (req, res, next) {
+    console.log('[syncDatasets b1 project]', new Date().toISOString());
+    var result = await b1service.projectList();
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/sync/byd/project', async function (req, res, next) {
+    console.log('[syncDatasets byd project]', new Date().toISOString());
+    var result = await bydservice.projectList();
     res.send(result);
     console.log('-'.repeat(100));
 });

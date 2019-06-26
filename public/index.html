@@ -5,37 +5,22 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Spare Parts Recognition</title>
-    <link rel="shortcut icon" href="/favicon" />
-    <!-- twitter-bootstrap -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- font-awesome-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <!-- admin-lte -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/skins/_all-skins.min.css">
+    <title>Tine Recording Chatbot</title>
+    <link rel="shortcut icon" href="/favicon">
+    <link rel="stylesheet" href="resource/css/main.css">
 </head>
 
 <body class="skin-blue hold-transition sidebar-mini sidebar-collapse">
     <div class="wrapper">
         <header id="header" class="main-header"></header>
-        <aside id="sidebar" class="main-sidebar sidebar-dark-primary elevation-4"></aside>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <section class="content-header">
-                <h1>
-                    Console
-                    <small>Console of Spare Parts Recognition</small>
-                </h1>
-                <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                    <li class="active">Console</li>
-                </ol>
-            </section>
             <!-- Main content -->
             <section class="content">
-                <h1>Mobile App Starts Here</h1>
+                <div id="pnl-qrcode">
+                    <h4>Scan QRcode by Mobile Camera</h4>
+                </div>
             </section>
         </div>
 
@@ -45,24 +30,33 @@
     <!-- ./wrapper -->
 
     <!-- REQUIRED SCRIPTS -->
-    <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <!-- Bootstrap -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- Adminlte -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/js/adminlte.min.js"></script>
+    <script src="./resource/js/main.js"></script>
 
-    <!-- <script src="./resource/js/main.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 
     <script type="text/javascript">
         $(function () {
+            // redirect to camera page
+            if (browser.versions.mobile || browser.versions.ios || browser.versions.android ||
+                browser.versions.iPhone) {
+                window.location.href = '/camera';
+            }
+
             // load shared web parts
-            $("#header").load("./shared/header.html");
+            $("#header").load("./shared/header.html", (d, status) => {
+                if (status === 'success' && d) {
+                    $("#header").find("nav").hide();
+                }
+            });
             $("#footer").load("./shared/footer.html");
 
-            $("#sidebar").load("./shared/sidebar.html", function () {
-                $(".sidebar li.index-page").addClass("active");
-                $(".sidebar li.labels-page").removeClass("active");
+            $("#pnl-qrcode").qrcode({
+                width: 128,
+                height: 128,
+                text: window.location.href
+            }).click(() => {
+                window.location.href = '/camera';
             });
 
 

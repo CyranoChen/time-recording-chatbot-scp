@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Tine Recording Chatbot</title>
+    <link rel="shortcut icon" href="/favicon">
+    <link rel="stylesheet" href="resource/css/main.css">
+</head>
+
+<body class="skin-blue hold-transition sidebar-mini sidebar-collapse">
+    <div class="wrapper">
+        <header id="header" class="main-header"></header>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Main content -->
+            <section class="content">
+                <div id="pnl-photo">
+                    <div id="svg-take-photo" style="display: none"></div>
+                    <video id="camera-handler" autoplay="autoplay" style="display:none"></video>
+                    <canvas style="display:none"></canvas>
+                    <div id="img-preview" style="display:none"><img /></div>
+                    <input id="tb-photo" name="tb-photo" type="file" accept="image/*;capture=camera"
+                        style="display: none" />
+                    <input type="hidden" class="form-control" id="tb-image-name" />
+                    <input type="hidden" class="form-control" id="tb-image-base64" />
+                </div>
+                <div id="pnl-camera-button" class="button-bar text-center">
+                    <button id="btn-take" class="btn btn-primary">Take Photo</button>
+                    <button id="btn-submit" class="btn btn-primary" style="display: none">Recognizing ...</button>
+                </div>
+
+                <div id="pnl-camera-result" class="box box-primary" style="display:none">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><i class="fa fa-user-circle" aria-hidden="true"></i> Recognized Employees
+                        </h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i
+                                    class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body no-padding">
+                        <ul class="users-list clearfix">
+                        </ul>
+                        <!-- /.users-list -->
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer text-center">
+                        <a href="javascript:void(0)" onclick="window.location.href=window.location.href"
+                            class="uppercase">retake ...</a>
+                    </div>
+                    <!-- /.box-footer -->
+                </div>
+                <!--/.box -->
+            </section>
+        </div>
+
+        <!-- Main Footer -->
+        <footer id="footer" class="main-footer"></footer>
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- REQUIRED SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./resource/js/main.js"></script>
+    <script src="./resource/js/camera.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            // load shared web parts
+            $("#header").load("./shared/header.html", (d, status) => {
+                if (status === 'success' && d) {
+                    $("#header").find("nav").hide();
+                }
+            });
+            $("#footer").load("./shared/footer.html");
+
+            var $tbImageName = $("input#tb-image-name");
+            var $tbImageBase64 = $("input#tb-image-base64");
+            var $pnlCameraResult = $("div#pnl-camera-result");
+            var $btnSubmit = $("#btn-submit");
+
+            $(document).on('keydown', function (e) {
+                if (e.which == 13) {
+                    if ($('input#tb-photo')[0].files[0] == null || $('input#tb-photo')[0].files[0] ==
+                        undefined) {
+                        $("button#btn-take").click();
+                    } else {
+                        $("buttion#btn-submit").click();
+                    }
+                }
+            });
+
+            $("#pnl-photo>#img-preview>img").on('load', function () {
+                var base_size = $("#pnl-photo>#img-preview").width();
+                var $img = $("#pnl-photo>#img-preview>img");
+
+                $img.css("width", "auto").css("height", "auto").css("margin", "auto");
+
+                var w = $img.width(),
+                    h = $img.height();
+
+                if (w >= h) {
+                    $img.css("height", base_size);
+                    $img.css("margin-left", -(w * base_size / h - base_size) / 2);
+                } else if (w < h) {
+                    $img.css("width", base_size);
+                    $img.css("margin-top", -(h * base_size / w - base_size) / 2);
+                }
+            });
+
+            $btnSubmit.on('click', function () {
+                $("button#btn-take").hide();
+                $(this).show();
+
+                const settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": "/api/recognize",
+                    "method": "POST",
+                    "headers": {
+                        "Content-Type": "application/json",
+                        "cache-control": "no-cache",
+                    },
+                    "processData": false,
+                    "data": JSON.stringify({
+                        "filename": $tbImageName.val(),
+                        "image": $tbImageBase64.val()
+                    })
+                };
+
+                $.ajax(settings).done((res) => {
+                    console.log(res);
+                    $pnlCameraResult.find("ul").empty();
+                    $btnSubmit.hide();
+
+                    if (res && res.state === 'success' && res.hasOwnProperty('data') && res.data.length > 0) {
+                        for (var d of res.data) {
+                            let item = $("<li />")
+                                .append($("<a />", {
+                                    href: `/chat?id=${d.id}&eid=${d.eid}&name=${d.name}&app=${d.app}`
+                                })
+                                .append($("<img />", {
+                                    src: `/library/${d.app}/${d.id}.jpg`,
+                                    alt: d.id
+                                })))
+                                .append($("<a />", {
+                                    class: "users-list-name",
+                                    href: `/chat?id=${d.id}&eid=${d.eid}&name=${d.name}&app=${d.app}`
+                                }).text(d.name))
+                                .append($("<span />", {
+                                    class: "users-list-date"
+                                }).text(d.app + ' | ' + d.score.toFixed(2)));
+
+                            $pnlCameraResult.find("ul").append(item);
+                        }   
+                    } else {
+                        $pnlCameraResult.find("ul").append($('<p class="text-center">no employee found</p>'));
+                    }
+
+                    $pnlCameraResult.fadeIn(1000);
+                }).fail((res) => {
+                    alert(`${res.status} (${res.statusText})`);
+                });
+            });
+
+        });
+    </script>
+</body>
+
+</html>

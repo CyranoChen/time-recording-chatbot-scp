@@ -5,6 +5,7 @@ const config = require('./config');
 
 module.exports = {
     employeeList,
+    projectList,
     processDataset,
 };
 
@@ -38,6 +39,38 @@ function getToken() {
 }
 
 async function employeeList() {
+    return new Promise((resolve, reject) => {
+        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployee/EmployeeCollection', {
+            qs:
+            {
+                '$expand': 'EmployeeAttachmentFolder',
+                '$format': 'json'
+            },
+            headers:
+            {
+                'cache-control': 'no-cache',
+                'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
+                'x-csrf-token': 'fetch'
+            },
+            json: true,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            if (res && res.headers.hasOwnProperty('x-csrf-token')) {
+                // x-csrf-token=LkJovn22gAJpAjVW2ZFpqw==
+                _token = res.headers['x-csrf-token'];
+                _tokenTimeout = Date.now();
+                console.log(_token, _tokenTimeout);
+                resolve(body);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+async function projectList() {
+    // TODO
     return new Promise((resolve, reject) => {
         req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployee/EmployeeCollection', {
             qs:

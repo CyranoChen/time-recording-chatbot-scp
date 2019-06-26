@@ -1,9 +1,83 @@
 /* twitter-bootstrap */
+
 @import "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css";
-
 /* font-awesome */
-@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
 
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
 /* admin-lte */
+
 @import "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/AdminLTE.min.css";
 @import "https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/css/skins/_all-skins.min.css";
+/* page index */
+
+#pnl-qrcode {
+    padding: 40px;
+    text-align: center;
+}
+
+#pnl-qrcode h4 {
+    padding: 10px;
+    font-weight: bold;
+}
+
+/* page camera */
+
+#camera-handler {
+    width: 256px;
+    height: 256px;
+    overflow: hidden;
+    border-radius: 150px;
+    border: 3px solid #ffaa00;
+}
+
+#pnl-photo {
+    margin: 20px auto;
+    width: 256px;
+}
+
+#pnl-photo #svg-take-photo {
+    background: url(../img/btn-take-photo.png) no-repeat center center;
+    background-size: cover;
+    width: 256px;
+    height: 256px;
+    text-align: center;
+    color: #ffffff;
+    font-weight: bold;
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#pnl-photo #img-preview {
+    width: 256px;
+    height: 256px;
+    overflow: hidden;
+    border-radius: 128px;
+}
+
+#pnl-camera-result .users-list>li {
+    width: 50%;
+}
+
+#pnl-camera-result .users-list>li img {
+    width: 100%;
+    max-width: 256px;
+    max-height: 256px;
+}
+
+#pnl-camera-result .users-list p {
+    margin: 10px;
+}
+
+/* page chat */
+
+#pnl-messages .direct-chat-text {
+    white-space: normal;
+}
+
+/* #pnl-messages .direct-chat-msg.left  .direct-chat-text{
+    background: #fff;
+    border-color: #666;
+    color: #333;
+} */

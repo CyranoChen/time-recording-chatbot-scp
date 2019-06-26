@@ -5,6 +5,7 @@ const config = require('./config');
 
 module.exports = {
     employeeList,
+    projectList,
     processDataset,
 };
 
@@ -47,6 +48,24 @@ async function employeeList() {
         const j = req.jar();
         const cookie = req.cookie(_cookieString);
         const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/EmployeesInfo';
+        j.setCookie(cookie, url);
+        req.get(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
+            if (err) { reject(err); }
+            resolve(body);
+        });
+    });
+}
+
+async function projectList() {
+    if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
+        const cookie = await getCookies();
+        if (!cookie) { return null; }
+    }
+
+    return new Promise((resolve, reject) => {
+        const j = req.jar();
+        const cookie = req.cookie(_cookieString);
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/Projects';
         j.setCookie(cookie, url);
         req.get(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
             if (err) { reject(err); }

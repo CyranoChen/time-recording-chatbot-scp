@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Tine Recording Chatbot</title>
+    <link rel="shortcut icon" href="/favicon">
+    <link rel="stylesheet" href="resource/css/main.css">
+</head>
+
+<body class="skin-blue hold-transition sidebar-mini sidebar-collapse">
+    <div class="wrapper">
+        <header id="header" class="main-header"></header>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Main content -->
+            <section class="content">
+                <div class="box box-primary direct-chat direct-chat-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><i class="fa fa-commenting-o" aria-hidden="true"></i> Direct Chat</h3>
+                        <div class="box-tools pull-right">
+                            <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow hidden">3</span>
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-box-tool" data-widget="remove"><i
+                                    class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <!-- Conversations are loaded here -->
+                        <div id="pnl-messages" class="direct-chat-messages">
+                            <!-- Message. Default to the left -->
+                        </div>
+                        <!--/.direct-chat-messages-->
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                        <form role="form">
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <img id="img-me-avatar" class="direct-chat-img" src="/library/byd/8000000002.jpg"
+                                        alt="me username" />
+                                </div>
+                                <input type="text" name="tb-chat" id="tb-chat" placeholder="Type Message ..."
+                                    class="form-control" style="height: 54px">
+                                <input type="hidden" class="form-control" id="tb-chat-session" value="default" />
+                                <span class="input-group-btn" style="padding: 5px">
+                                    <button id="btn-chat" type="button" class="btn btn-primary btn-flat">
+                                        <i class="fa fa-comments-o"></i></button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.box-footer-->
+                </div>
+                <!--/.direct-chat -->
+            </section>
+        </div>
+
+        <!-- Main Footer -->
+        <footer id="footer" class="main-footer"></footer>
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- REQUIRED SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./resource/js/main.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            // load shared web parts
+            $("#header").load("./shared/header.html", (d, status) => {
+                if (status === 'success' && d) {
+                    $("#header").find("nav").hide();
+                }
+            });
+            $("#footer").load("./shared/footer.html");
+
+            function createChatItem(message, user = 'admin', avatar = './resource/img/chatbot-avatar.png',
+                me = false) {
+                return $("<div />", {
+                        class: `direct-chat-msg ${me ? 'right' : 'left'}`
+                    })
+                    .append($("<div />", {
+                        class: 'direct-chat-info clearfix'
+                    }).append($("<span />", {
+                        class: `direct-chat-name pull-${me ? 'right' : 'left'}`
+                    }).text(user)).append($("<span />", {
+                        class: `direct-chat-timestamp pull-${!me ? 'right' : 'left'}`
+                    }).text(new Date().toLocaleString() // .toLocaleString('zh-CN', { hour12: false })
+                    )))
+                    .append($("<img />", {
+                        class: "direct-chat-img",
+                        src: avatar,
+                        alt: user
+                    }))
+                    .append($("<div />", {
+                        class: "direct-chat-text"
+                    }).text(message));
+            }
+
+            var $pnlMessages = $("div#pnl-messages");
+            var $tbChat = $("input#tb-chat");
+            var $tbChatSession = $("input#tb-chat-session");
+            var $btnChat = $("button#btn-chat");
+
+            const START_MSG =
+                "Hi, this is iCats helping you with time recording. Would you like me to record your time today?";
+            let initItem = createChatItem(START_MSG);
+
+            $pnlMessages.css('height', window.innerHeight - $("#header").height() - $("#footer").height() - 220)
+                .append(initItem)
+                .animate({
+                    scrollTop: $pnlMessages.prop("scrollHeight")
+                }, 500);;
+
+            $tbChatSession.val(new Date().getTime());
+
+            $tbChat.on('keydown', (e) => {
+                if (e.which == 13) {
+                    if ($tbChat.val() != '') {
+                        $btnChat.click();
+                    }
+                    return false;
+                }
+            });
+
+            $btnChat.on('click', () => {
+                if ($tbChat.val() == '') {
+                    return false;
+                }
+
+                const username = 'cyrano';
+                const userAvatar = '/library/byd/8000000002.jpg';
+
+                let item = createChatItem($tbChat.val(), user = username, avatar = userAvatar, me =
+                    true);
+
+                $pnlMessages.append(item).animate({
+                    scrollTop: $pnlMessages.prop("scrollHeight")
+                }, 500);
+
+                const settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": "https://api.recast.ai/build/v1/dialog",
+                    "method": "POST",
+                    "headers": {
+                        "Authorization": "Token 2a61f1569c49dab94f959c4df9fa8f73",
+                        "Content-Type": "application/json",
+                        "cache-control": "no-cache",
+                    },
+                    "processData": false,
+                    "data": JSON.stringify({
+                        "message": {
+                            "content": $tbChat.val(),
+                            "type": "text"
+                        },
+                        "conversation_id": $tbChatSession.val()
+                    })
+                };
+
+                $.ajax(settings).done((res) => {
+                    console.log(res);
+
+                    if (res) {
+                        let item = createChatItem(res.results.messages[0].content);
+
+                        $pnlMessages.append(item).animate({
+                            scrollTop: $pnlMessages.prop("scrollHeight")
+                        }, 500);
+                    }
+                }).fail((res) => {
+                    alert(`${res.status} (${res.statusText})`);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
