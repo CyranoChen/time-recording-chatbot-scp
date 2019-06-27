@@ -20,6 +20,18 @@ var browser = {
     language: (navigator.browserLanguage || navigator.language).toLowerCase()
 };
 
+function querystring(search_for) {
+    var query = window.location.search.substring(1);
+    var parms = query.split('&');
+    for (var i = 0; i < parms.length; i++) {
+        var pos = parms[i].indexOf('=');
+        if (pos > 0 && search_for == parms[i].substring(0, pos)) {
+            return parms[i].substring(pos + 1);
+        }
+    }
+    return null;
+}
+
 $(function () {
     $.getScript('https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js');
     //$.getScript('https://cdnjs.cloudflare.com/ajax/libs/admin-lte/2.4.10/js/adminlte.min.js');

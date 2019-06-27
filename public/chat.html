@@ -18,11 +18,15 @@
         <div class="content-wrapper">
             <!-- Main content -->
             <section class="content">
-                <div class="box box-primary direct-chat direct-chat-primary">
+                <div id="pnl-chat" class="box box-primary direct-chat direct-chat-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title"><i class="fa fa-commenting-o" aria-hidden="true"></i> Direct Chat</h3>
+                        <h3 class="box-title"></h3>
                         <div class="box-tools pull-right">
                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow hidden">3</span>
+                            <button type="button" class="btn btn-box-tool"
+                                onclick="window.location.href=window.location.href">
+                                <i class="fa fa-refresh"></i>
+                            </button>
                             <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
                                     class="fa fa-minus"></i>
                             </button>
@@ -44,8 +48,7 @@
                         <form role="form">
                             <div class="input-group">
                                 <div class="input-group-addon">
-                                    <img id="img-me-avatar" class="direct-chat-img" src="/library/byd/8000000002.jpg"
-                                        alt="me username" />
+                                    <img id="img-me-avatar" class="direct-chat-img" />
                                 </div>
                                 <input type="text" name="tb-chat" id="tb-chat" placeholder="Type Message ..."
                                     class="form-control" style="height: 54px">
@@ -74,6 +77,24 @@
 
     <script type="text/javascript">
         $(function () {
+            if (querystring('employee')) {
+                // console.log(atob(querystring('employee')));
+                var employee = JSON.parse(atob(querystring('employee')));
+                if (employee) {
+                    $("div#pnl-chat").find(".box-header h3.box-title").html(
+                        `<img src="./resource/img/${employee.app}-logo.png" style="height: 32px" /> Direct Chat`
+                    );
+                    $("img#img-me-avatar").prop('src', employee.image).prop('alt', employee.name).attr('title',
+                        `${employee.id},${employee.eid}`);
+                } else {
+                    window.location.href = '/';
+                }
+            } else {
+                window.location.href = '/';
+            }
+
+            console.log(employee);
+
             // load shared web parts
             $("#header").load("./shared/header.html", (d, status) => {
                 if (status === 'success' && d) {
@@ -110,18 +131,45 @@
             var $tbChatSession = $("input#tb-chat-session");
             var $btnChat = $("button#btn-chat");
 
-            const START_MSG =
-                "Hi, this is iCats helping you with time recording. Would you like me to record your time today?";
-            let initItem = createChatItem(START_MSG);
+            $pnlMessages.css('height', window.innerHeight - $("#header").height() - $("#footer").height() -
+                220);
 
-            $pnlMessages.css('height', window.innerHeight - $("#header").height() - $("#footer").height() - 220)
-                .append(initItem)
-                .animate({
-                    scrollTop: $pnlMessages.prop("scrollHeight")
-                }, 500);;
+            // initial session
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": "https://pvgm50898582a.dhcp.pvgl.sap.corp:9004/api/context",
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache",
+                },
+                "processData": false,
+                "data": JSON.stringify({
+                    "session": "default",
+                    "uid": employee.id,
+                    "content": "default"
+                })
+            };
 
-            $tbChatSession.val(new Date().getTime());
+            $.ajax(settings).done((res) => {
+                let d = JSON.parse(res);
+                console.log(d);
+                if (d && d.state === 'success') {
+                    // console.log('session', d.session)
+                    $tbChatSession.val(d.session);
 
+                    let initItem = createChatItem(d.message.display);
+                    $pnlMessages.append(initItem)
+                        .animate({
+                            scrollTop: $pnlMessages.prop("scrollHeight")
+                        }, 500);
+                }
+            }).fail((res) => {
+                alert(`${res.status} (${res.statusText})`);
+            });
+
+            // button binded
             $tbChat.on('keydown', (e) => {
                 if (e.which == 13) {
                     if ($tbChat.val() != '') {
@@ -136,46 +184,32 @@
                     return false;
                 }
 
-                const username = 'cyrano';
-                const userAvatar = '/library/byd/8000000002.jpg';
-
-                let item = createChatItem($tbChat.val(), user = username, avatar = userAvatar, me =
-                    true);
+                let item = createChatItem($tbChat.val(), user = employee.name, avatar = employee.image,
+                    me = true);
 
                 $pnlMessages.append(item).animate({
                     scrollTop: $pnlMessages.prop("scrollHeight")
                 }, 500);
 
-                const settings = {
-                    "async": true,
-                    "crossDomain": true,
-                    "url": "https://api.recast.ai/build/v1/dialog",
-                    "method": "POST",
-                    "headers": {
-                        "Authorization": "Token 2a61f1569c49dab94f959c4df9fa8f73",
-                        "Content-Type": "application/json",
-                        "cache-control": "no-cache",
-                    },
-                    "processData": false,
-                    "data": JSON.stringify({
-                        "message": {
-                            "content": $tbChat.val(),
-                            "type": "text"
-                        },
-                        "conversation_id": $tbChatSession.val()
-                    })
-                };
+
+                settings.data = JSON.stringify({
+                    "session": $tbChatSession.val(),
+                    "uid": employee.id,
+                    "content": $tbChat.val()
+                })
 
                 $.ajax(settings).done((res) => {
-                    console.log(res);
+                    let d = JSON.parse(res);
+                    console.log(d);
 
-                    if (res) {
-                        let item = createChatItem(res.results.messages[0].content);
-
+                    if (d && d.state === 'success') {
+                        let item = createChatItem(d.message.display);
                         $pnlMessages.append(item).animate({
                             scrollTop: $pnlMessages.prop("scrollHeight")
                         }, 500);
                     }
+
+                    $tbChat.val('');
                 }).fail((res) => {
                     alert(`${res.status} (${res.statusText})`);
                 });

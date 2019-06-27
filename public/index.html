@@ -18,7 +18,7 @@
         <div class="content-wrapper">
             <!-- Main content -->
             <section class="content">
-                <div id="pnl-qrcode">
+                <div id="pnl-qrcode" style="display:none">
                     <h4>Scan QRcode by Mobile Camera</h4>
                 </div>
             </section>
@@ -57,9 +57,7 @@
                 text: window.location.href
             }).click(() => {
                 window.location.href = '/camera';
-            });
-
-
+            }).fadeIn(500);
         });
     </script>
 </body>

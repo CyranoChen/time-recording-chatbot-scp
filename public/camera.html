@@ -144,9 +144,11 @@
 
                     if (res && res.state === 'success' && res.hasOwnProperty('data') && res.data.length > 0) {
                         for (var d of res.data) {
+                            let employeeBase64 = btoa(JSON.stringify(d));
+                            console.log(employeeBase64);
                             let item = $("<li />")
                                 .append($("<a />", {
-                                    href: `/chat?id=${d.id}&eid=${d.eid}&name=${d.name}&app=${d.app}`
+                                    href: `/chat?employee=${employeeBase64}`
                                 })
                                 .append($("<img />", {
                                     src: `/library/${d.app}/${d.id}.jpg`,
@@ -154,7 +156,7 @@
                                 })))
                                 .append($("<a />", {
                                     class: "users-list-name",
-                                    href: `/chat?id=${d.id}&eid=${d.eid}&name=${d.name}&app=${d.app}`
+                                    href: `/chat?employee=${employeeBase64}`
                                 }).text(d.name))
                                 .append($("<span />", {
                                     class: "users-list-date"
