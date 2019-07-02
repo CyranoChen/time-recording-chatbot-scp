@@ -159,7 +159,14 @@
                     // console.log('session', d.session)
                     $tbChatSession.val(d.session);
 
-                    let initItem = createChatItem(d.message.display);
+                    let firstName = employee.name.split(' ')[0];
+                    let message = d.message.display.replace('[username]', firstName);
+                    let initItem = createChatItem(message);
+
+                    if (window.speechSynthesis) {
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(message));
+                    }
+
                     $pnlMessages.append(initItem)
                         .animate({
                             scrollTop: $pnlMessages.prop("scrollHeight")
@@ -204,9 +211,44 @@
 
                     if (d && d.state === 'success') {
                         let item = createChatItem(d.message.display);
+                        if (window.speechSynthesis) {
+                            window.speechSynthesis.speak(
+                                new SpeechSynthesisUtterance(d.message.display));
+                        }
                         $pnlMessages.append(item).animate({
                             scrollTop: $pnlMessages.prop("scrollHeight")
                         }, 500);
+
+                        // record time
+                        if (d.step === 'DONE_MSG' && d.uid == employee.id) {
+                            const settings_record = {
+                                "async": true,
+                                "crossDomain": false,
+                                "url": "/api/sync/byd/record",
+                                "method": "POST",
+                                "headers": {
+                                    "Content-Type": "application/json",
+                                    "cache-control": "no-cache",
+                                },
+                                "processData": false,
+                                "data": JSON.stringify({
+                                    "employee": employee.eid,
+                                    "datetime": new Date(d.para.datetime)
+                                        .toLocaleDateString('zh-CN'),
+                                    "duration": `PT${d.para.duration}H0M`
+                                })
+                            };
+
+                            $.ajax(settings_record).done((res) => {
+                                console.log(res);
+                                if (res.d.results.LifeCycleStatusCode == 2) {
+                                    console.log(employee.app, 'Recorded:', res.d.results.LifeCycleStatusCodeText, res.d.results.ApprovalStatusCodeText);
+                                }
+
+                            }).fail((res) => {
+                                alert(`${res.status} (${res.statusText})`);
+                            });
+                        }
                     }
 
                     $tbChat.val('');

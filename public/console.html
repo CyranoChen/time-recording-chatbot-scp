@@ -130,7 +130,8 @@
                             <div class="col-sm-6 btn-group">
                                 <button type="button" id="btn-project-b1" class="btn btn-default">Sync
                                     Projects</button>
-                                <button type="button" id="btn-record-b1" class="btn btn-default">Record</button>
+                                <button type="button" id="btn-record-b1" class="btn btn-default"
+                                    disabled>Record</button>
                             </div>
                         </div>
                         <!-- /.box-footer -->
@@ -151,7 +152,7 @@
             // load shared web parts
             $("#header").load("./shared/header.html");
             $("#footer").load("./shared/footer.html");
-            
+
             $("#sidebar").load("./shared/sidebar.html", function () {
                 $(".sidebar li.index-page").removeClass("active");
                 $(".sidebar li.console-page").addClass("active");
@@ -347,11 +348,45 @@
                     if (status === 'success' && d) {
                         console.log(d);
                         $taProjectByd.val(JSON.stringify(d, null, 2));
-                        $btnProjectByd.text(`Synced Projects (${d.length})`).prop('disable',
+                        $btnProjectByd.text(`Synced Projects (${d.d.results.length})`).prop(
+                            'disable',
                             true);
                     } else {
                         alert(status);
                     }
+                });
+            });
+
+            $btnRecordByd.click(() => {
+                $btnRecordByd.text('Recording').prop('disable', false);
+                const settings = {
+                    "async": true,
+                    "crossDomain": false,
+                    "url": "/api/sync/byd/record",
+                    "method": "POST",
+                    "headers": {
+                        "Content-Type": "application/json",
+                        "cache-control": "no-cache",
+                    },
+                    "processData": false,
+                    "data": JSON.stringify({
+                        "employee": "E0005",
+                        "datetime": new Date().toLocaleDateString('zh-CN'),
+                        "duration": "PT8H0M"
+                    })
+                };
+
+                $.ajax(settings).done((res) => {
+                    console.log(res);
+                    $taProjectByd.val(JSON.stringify(res, null, 2));
+                    if (res.d.results.LifeCycleStatusCode == 2) {
+                        $btnRecordByd.text(
+                            `Recorded (${res.d.results.LifeCycleStatusCodeText}) (${res.d.results.ApprovalStatusCodeText})`
+                            ).prop('disable', true);
+                    }
+
+                }).fail((res) => {
+                    alert(`${res.status} (${res.statusText})`);
                 });
             });
 

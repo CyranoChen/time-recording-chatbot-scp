@@ -6,7 +6,7 @@ module.exports = {
             "GENERAL": {
                 "THRESHOLD_SIMILAR": Number(process.env.GENERAL_THRESHOLD_SIMILAR),
                 "THRESHOLD_NUM_SIMILAR": Number(process.env.GENERAL_THRESHOLD_NUM_SIMILAR),
-                "DATASETS": "byd".toLowerCase()
+                "DATASETS": process.env.GENERAL_DATASETS.toLowerCase()
             },
             "LEONARDO": {
                 "APIKEY": process.env.LEON_APIKEY,

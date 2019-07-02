@@ -1,5 +1,6 @@
 const fs = require('fs');
 
+const config = require('./config');
 const leon = require('./leonardo');
 const label = require('./label')
 
@@ -8,6 +9,8 @@ module.exports = {
     //score: similarityScoring,
     export: exportResult
 };
+
+const _configs = config.getConfigs();
 
 async function searchFace(filename) {
     var result = await leon.faceFeatureExtraction(filename);
@@ -18,7 +21,9 @@ async function searchFace(filename) {
         var condinates = [];
         const labels = label.getLabels();
         for (let k in labels) {
-            condinates.push({ "id": k, "vector": labels[k].faceFeature });
+            if (labels[k].application.toLowerCase() == _configs.GENERAL.DATASETS) {
+                condinates.push({ "id": k, "vector": labels[k].faceFeature });
+            }
         }
 
         const vectors = {

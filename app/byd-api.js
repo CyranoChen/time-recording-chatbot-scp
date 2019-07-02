@@ -6,6 +6,7 @@ const config = require('./config');
 module.exports = {
     employeeList,
     projectList,
+    recordTime,
     processDataset,
 };
 
@@ -13,30 +14,9 @@ const _configs = config.getConfigs();
 
 var _token;
 var _tokenTimeout;
-function getToken() {
-    return new Promise((resolve, reject) => {
-        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployee/$metadata', {
-            headers:
-            {
-                'cache-control': 'no-cache',
-                'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
-                'x-csrf-token': 'fetch'
-            },
-            rejectUnauthorized: false
-        }, (err, res, body) => {
-            if (err) { reject(err); }
-            if (res && res.headers.hasOwnProperty('x-csrf-token')) {
-                // x-csrf-token=LkJovn22gAJpAjVW2ZFpqw==
-                _token = res.headers['x-csrf-token'];
-                _tokenTimeout = Date.now();
-                console.log(_token, _tokenTimeout);
-                resolve(_token);
-            } else {
-                resolve(null);
-            }
-        });
-    });
-}
+
+var _cookieString;
+var _cookieStringTimeout;
 
 async function employeeList() {
     return new Promise((resolve, reject) => {
@@ -70,12 +50,10 @@ async function employeeList() {
 }
 
 async function projectList() {
-    // TODO
     return new Promise((resolve, reject) => {
-        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployee/EmployeeCollection', {
+        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khproject/ProjectCollection', {
             qs:
             {
-                '$expand': 'EmployeeAttachmentFolder',
                 '$format': 'json'
             },
             headers:
@@ -93,6 +71,133 @@ async function projectList() {
                 _token = res.headers['x-csrf-token'];
                 _tokenTimeout = Date.now();
                 console.log(_token, _tokenTimeout);
+                resolve(body);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+async function recordTime(employeeId, datetime, duration) {
+    var result = await getTimeAgreement(employeeId);
+    console.log('get time argeement:', result);
+
+    if (result && result.d.results.length > 0 && result.d.results[0].UUID) {
+        let employeeTimeAgreementItemUUID = result.d.results[0].UUID;
+
+        // startDate = endDate = datetime yyyy/mm/dd
+        let startDate = new Date(datetime).toISOString().substr(0,10) + "T00:00:00.0000000";
+        let endDate = new Date(datetime).toISOString().substr(0,10) + "T00:00:00.0000000";
+
+        var result_record = await createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration);
+        console.log('create time recording:', result_record);
+
+        if (result_record && result_record.d.results && result_record.d.results.ObjectID != '') {
+            let employeeTimeObjectID = result_record.d.results.ObjectID;
+
+            var result_submit = await submitTimeRecording(employeeTimeObjectID);
+            console.log('submit time recording:', result_submit);
+
+            return result_submit;
+        }
+    }
+
+    return [];
+}
+
+async function getTimeAgreement(employeeId) {
+    return new Promise((resolve, reject) => {
+        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khtimeagreement/ItemCollection', {
+            qs:
+            {
+                '$format': 'json',
+                '$filter': `EmployeeID eq '${employeeId}'`
+            },
+            headers:
+            {
+                'cache-control': 'no-cache',
+                'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
+                'x-csrf-token': 'fetch'
+            },
+            json: true,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            if (res && res.headers.hasOwnProperty('x-csrf-token')) {
+                // x-csrf-token=LkJovn22gAJpAjVW2ZFpqw==
+                _token = res.headers['x-csrf-token'];
+                _tokenTimeout = Date.now();
+                console.log('token:', _token, _tokenTimeout);
+
+                _cookieString = res.headers['set-cookie'];
+                _cookieStringTimeout = Date.now();
+                console.log('cookie:', _cookieString, _cookieStringTimeout);
+                resolve(body);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+async function createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration) {
+    return new Promise((resolve, reject) => {
+        req.post(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployeetime/EmployeeTimeCollection', {
+            headers:
+            {
+                'cache-control': 'no-cache',
+                //'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
+                'x-csrf-token': _token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Cookie': _cookieString.join( "; " )
+            },
+            body: {
+                "EmployeeTimeAgreementItemUUID": employeeTimeAgreementItemUUID,
+                "EmployeeTimeItem": [
+                    {
+                        "TypeCode": "US0001",
+                        "StartDate": startDate,
+                        "EndDate": endDate,
+                        "Duration": duration
+                    }
+                ]
+            },
+            json: true,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            if (res) {
+                resolve(body);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+async function submitTimeRecording(employeeTimeObjectID) {
+    return new Promise((resolve, reject) => {
+        req.post(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployeetime/SubmitForApproval', {
+            qs:
+            {
+                'ObjectID': `'${employeeTimeObjectID}'`
+            },
+            headers:
+            {
+                'cache-control': 'no-cache',
+                //'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
+                'x-csrf-token': _token,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Cookie': _cookieString.join( "; " )
+            },
+            json: true,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            if (res) {
                 resolve(body);
             } else {
                 resolve(null);

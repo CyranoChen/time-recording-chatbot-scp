@@ -40,6 +40,7 @@ app.post('/api/recognize', async function (req, res, next) {
     console.log('[recognize]', new Date().toISOString());
     if (!req.body || !req.body.hasOwnProperty('filename') || !req.body.hasOwnProperty('image')) {
         res.sendStatus(400);
+        return;
     }
 
     let filename = req.body.filename;
@@ -118,6 +119,24 @@ app.post('/api/sync/b1/project', async function (req, res, next) {
 app.post('/api/sync/byd/project', async function (req, res, next) {
     console.log('[syncDatasets byd project]', new Date().toISOString());
     var result = await bydservice.projectList();
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/sync/byd/record', async function (req, res, next) {
+    console.log('[record byd employee time]', new Date().toISOString());
+    console.log(req.body);
+    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') || !req.body.hasOwnProperty('duration')) {
+        res.sendStatus(400);
+        return;
+    }
+
+    let employee = req.body.employee;
+    let datetime = req.body.datetime;
+    let duration = req.body.duration;
+    console.log('input:', req.body.employee, datetime, duration);
+
+    var result = await bydservice.recordTime(employee, datetime, duration);
     res.send(result);
     console.log('-'.repeat(100));
 });
