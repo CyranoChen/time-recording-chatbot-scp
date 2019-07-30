@@ -19,3 +19,7 @@ applications:
         GENERAL_THRESHOLD_SIMILAR: 0.90 # similarity threshold 0~1
         GENERAL_THRESHOLD_NUM_SIMILAR: 3 # default return 3 condinates 
         GENERAL_DATASETS: BYD
+        RECASTAI_APIKEY: aa50ad58c30e4a3e62d8cd88b73c0ba6
+        RECASTAI_DIALOG_ENDPOINTS: https://api.cai.tools.sap/build/v1/dialog
+        RECASTAI_REQUEST_ENDPOINTS: https://api.cai.tools.sap/train/v2/request
+        RECASTAI_WELCOME_MESSAGE: Hello, [username]. Which project do you want to record?

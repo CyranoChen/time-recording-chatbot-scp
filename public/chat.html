@@ -138,7 +138,7 @@
             var settings = {
                 "async": true,
                 "crossDomain": true,
-                "url": "https://pvgm50898582a.dhcp.pvgl.sap.corp:9004/api/context",
+                "url": "/api/context",
                 "method": "POST",
                 "headers": {
                     "Content-Type": "application/json",
@@ -147,30 +147,36 @@
                 "processData": false,
                 "data": JSON.stringify({
                     "session": "default",
-                    "uid": employee.id,
-                    "content": "default"
+                    "employee": employee.id,
+                    "content": "record project time" // trigger the skill
                 })
             };
 
             $.ajax(settings).done((res) => {
-                let d = JSON.parse(res);
+                let d = res;
                 console.log(d);
-                if (d && d.state === 'success') {
+                if (d && d.results.conversation.hasOwnProperty('id')) {
                     // console.log('session', d.session)
-                    $tbChatSession.val(d.session);
+                    $tbChatSession.val(d.results.conversation.id);
 
-                    let firstName = employee.name.split(' ')[0];
-                    let message = d.message.display.replace('[username]', firstName);
+                    let message = `Hello, ${employee.name.split(' ')[0]}. `; // hello, firstname
                     let initItem = createChatItem(message);
-
-                    if (window.speechSynthesis) {
-                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(message));
-                    }
 
                     $pnlMessages.append(initItem)
                         .animate({
                             scrollTop: $pnlMessages.prop("scrollHeight")
                         }, 500);
+
+                    let item = createChatItem(d.results.messages[0].content); // first respsonse
+
+                    $pnlMessages.append(item).animate({
+                        scrollTop: $pnlMessages.prop("scrollHeight")
+                    }, 500);
+
+                    if (window.speechSynthesis) {
+                        window.speechSynthesis.speak(
+                            new SpeechSynthesisUtterance(message + d.results.messages[0].content));
+                    }
                 }
             }).fail((res) => {
                 alert(`${res.status} (${res.statusText})`);
@@ -201,26 +207,71 @@
 
                 settings.data = JSON.stringify({
                     "session": $tbChatSession.val(),
-                    "uid": employee.id,
+                    "employee": employee.id,
                     "content": $tbChat.val()
                 })
 
                 $.ajax(settings).done((res) => {
-                    let d = JSON.parse(res);
+                    let d = res;
                     console.log(d);
 
-                    if (d && d.state === 'success') {
-                        let item = createChatItem(d.message.display);
-                        if (window.speechSynthesis) {
-                            window.speechSynthesis.speak(
-                                new SpeechSynthesisUtterance(d.message.display));
+                    if (d && d.results.conversation.hasOwnProperty('id') && d.results
+                        .conversation.id == $tbChatSession.val()) {
+                        for (let message of d.results.messages) {
+                            let item = createChatItem(message.content);
+                            if (window.speechSynthesis) {
+                                window.speechSynthesis.speak(
+                                    new SpeechSynthesisUtterance(message.content));
+                            }
+                            $pnlMessages.append(item).animate({
+                                scrollTop: $pnlMessages.prop("scrollHeight")
+                            }, 500);
                         }
-                        $pnlMessages.append(item).animate({
-                            scrollTop: $pnlMessages.prop("scrollHeight")
-                        }, 500);
+
+                        let flagFinal = false;
+
+                        if (d.results.conversation.skill === 'record-project-time' &&
+                            d.results.conversation.memory.hasOwnProperty('project') &&
+                            d.results.conversation.memory.hasOwnProperty('task') &&
+                            d.results.conversation.memory.hasOwnProperty('datetime') &&
+                            d.results.conversation.memory.hasOwnProperty('duration')) {
+                            flagFinal = true;
+
+                            var duration_hours = d.results.conversation.memory.duration.hours;
+                            var datetime = new Date(d.results.conversation.memory.datetime.iso)
+                                .toDateString();
+                            var project = d.results.conversation.memory.project.value;
+                            var task = d.results.conversation.memory.task.value;
+
+                            var message_done =
+                                `Done. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`
+
+                        }
+
+                        if (d.results.conversation.skill === 'record-time' &&
+                            d.results.conversation.memory.hasOwnProperty('startDate') &&
+                            d.results.conversation.memory.hasOwnProperty('endDate') &&
+                            d.results.conversation.memory.hasOwnProperty('timeType')) {
+                            flagFinal = true;
+
+                            var start_date = new Date(d.results.conversation.memory.startDate
+                                .iso).toDateString();
+                            var end_date = new Date(d.results.conversation.memory.end_date.iso)
+                                .toDateString();
+                            var duration_hours = Math.abs(Math.round((new Date(d.results
+                                    .conversation.memory.endDate.iso) -
+                                new Date(d.results.conversation.memory.startDate
+                                    .iso)) / 1000 / 60 / 60));
+                            var time_type = d.results.conversation.memory.timeType.value;
+
+                            var message_done =
+                                `Done. Record ${time_type} time from ${start_date} to ${end_date}`;
+                        }
 
                         // record time
-                        if (d.step === 'DONE_MSG' && d.uid == employee.id) {
+                        // Done! Record 1.5 hours on 2019-07-29T03:48:27+00:00 for project analyzer implementation and task installation kolllektoren
+                        if (d.results.conversation.memory.step === 'done' && flagFinal) {
+                            console.log(d.results.conversation.skill, message_done);
                             const settings_record = {
                                 "async": true,
                                 "crossDomain": false,
@@ -233,16 +284,30 @@
                                 "processData": false,
                                 "data": JSON.stringify({
                                     "employee": employee.eid,
-                                    "datetime": new Date(d.para.datetime)
-                                        .toLocaleDateString('zh-CN'),
-                                    "duration": `PT${d.para.duration}H0M`
+                                    "datetime": d.results.conversation.skill === 'record-project-time' ?
+                                        new Date(d.results.conversation.memory.datetime.iso).toLocaleDateString('zh-CN') : 
+                                        new Date(d.results.conversation.memory.startDate.iso).toLocaleDateString('zh-CN'),
+                                    "duration": `PT${duration_hours}H0M`
                                 })
                             };
 
                             $.ajax(settings_record).done((res) => {
                                 console.log(res);
                                 if (res.d.results.LifeCycleStatusCode == 2) {
-                                    console.log(employee.app, 'Recorded:', res.d.results.LifeCycleStatusCodeText, res.d.results.ApprovalStatusCodeText);
+                                    console.log(employee.app, 'Recorded:', res.d.results
+                                        .LifeCycleStatusCodeText, res.d.results
+                                        .ApprovalStatusCodeText);
+
+                                    let item = createChatItem(message_done);
+                                    if (window.speechSynthesis) {
+                                        window.speechSynthesis.speak(
+                                            new SpeechSynthesisUtterance(
+                                                message_done));
+                                    }
+                                    $pnlMessages.append(item).animate({
+                                        scrollTop: $pnlMessages.prop(
+                                            "scrollHeight")
+                                    }, 500);
                                 }
 
                             }).fail((res) => {

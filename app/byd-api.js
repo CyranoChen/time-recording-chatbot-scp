@@ -54,7 +54,8 @@ async function projectList() {
         req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/khproject/ProjectCollection', {
             qs:
             {
-                '$format': 'json'
+                '$format': 'json',
+                '$expand': 'ProjectSummaryTask,Task,Team'
             },
             headers:
             {

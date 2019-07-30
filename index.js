@@ -11,6 +11,7 @@ const label = require('./app/label');
 const recognize = require('./app/recognize');
 const b1service = require('./app/b1-sl');
 const bydservice = require('./app/byd-api');
+const cai = require('./app/cai');
 
 // ssl cert
 // const credentials = {
@@ -134,7 +135,7 @@ app.post('/api/sync/byd/record', async function (req, res, next) {
     let employee = req.body.employee;
     let datetime = req.body.datetime;
     let duration = req.body.duration;
-    console.log('input:', req.body.employee, datetime, duration);
+    console.log('input:', employee, datetime, duration);
 
     var result = await bydservice.recordTime(employee, datetime, duration);
     res.send(result);
@@ -158,6 +159,30 @@ app.post('/api/train/b1', async function (req, res, next) {
 app.post('/api/train/byd', async function (req, res, next) {
     console.log('[initialLabels]', new Date().toISOString());
     var result = await label.initialLabels(dataset = 'byd');
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/context', async function (req, res, next) {
+    console.log('[cai context]', new Date().toISOString());
+    console.log(req.body);
+    if (!req.body || !req.body.hasOwnProperty('session') || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('content')) {
+        res.sendStatus(400);
+        return;
+    }
+
+    let session = req.body.session;
+    if (session == 'default') {
+        session = new Date().getTime(); // new session
+    }
+    let employee = req.body.employee;
+    let content = req.body.content;
+    console.log('input:', session, employee, content);
+
+    var result = await cai.context(session, employee, content);
+    // if (req.body.session == 'default') { // hardcode the welcome message
+    //     result.results.messages[0].content = _configs.RECASTAI.WELCOME_MESSAGE
+    // }
     res.send(result);
     console.log('-'.repeat(100));
 });

@@ -23,6 +23,12 @@ module.exports = {
                 "TENANT_HOSTNAME": process.env.BYD_TENANT_HOSTNAME,
                 "USERNAME": process.env.BYD_USERNAME,
                 "PASSWORD": process.env.BYD_PASSWORD,
+            },
+            "RECASTAI": {
+                "APIKEY": process.env.RECASTAI_APIKEY,
+                "DIALOG_ENDPOINTS": process.env.RECASTAI_DIALOG_ENDPOINTS,
+                "REQUEST_ENDPOINTS": process.env.RECASTAI_REQUEST_ENDPOINTS,
+                "WELCOME_MESSAGE": process.env.RECASTAI_WELCOME_MESSAGE
             }
         };
     }
