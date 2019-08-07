@@ -21,7 +21,7 @@ async function searchFace(filename) {
         var condinates = [];
         const labels = label.getLabels();
         for (let k in labels) {
-            if (labels[k].application.toLowerCase() == _configs.GENERAL.DATASETS) {
+            if ((labels[k].application.toLowerCase() == _configs.GENERAL.DATASETS) || (_configs.GENERAL.DATASETS.toLowerCase() === 'all')) {
                 condinates.push({ "id": k, "vector": labels[k].faceFeature });
             }
         }
@@ -63,7 +63,7 @@ function exportResult(raw) {
                 name: item.name,
                 app: item.application,
                 score: r.score,
-                image: `/library/${item.application}/${r.id}.jpg`
+                image: `/library/${item.application}/${item.image}`
             });
         }
     }

@@ -17,9 +17,8 @@ async function syncDatasetsB1() {
     var result = await b1service.employeeList();
 
     if (result && result.hasOwnProperty('value') && result.value.length > 0) {
-        console.log('b1 employees length:', result.value.length);
-
         const employees = b1service.processDataset(result);
+        console.log('b1 employees with pictures length:', employees.length, '/', result.value.length);
         fs.writeFile('./app/label/datasets-b1.json', JSON.stringify(employees), 'utf-8', function (err) {
             if (err) { next(err); }
         });
@@ -34,9 +33,8 @@ async function syncDatasetsB1() {
 async function syncDatasetsByd() {
     var result = await bydservice.employeeList();
     if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
-        console.log('byd employees length:', result.d.results.length);
-
         const employees = bydservice.processDataset(result);
+        console.log('byd employees with pictures length:', employees.length, '/', result.d.results.length);
         fs.writeFile('./app/label/datasets-byd.json', JSON.stringify(employees), 'utf-8', function (err) {
             if (err) { next(err); }
         });
@@ -69,8 +67,8 @@ async function initialLabels(dataset = 'all') {
         if (ds && ds.length > 0) {
             let count = 0;
             for (let item of ds) {
-                if (item.Picture && fs.existsSync(`./app/label/pictures/byd/${item.Picture}.jpg`)) {
-                    let result = await leon.faceFeatureExtraction(item.ItemCode + '.jpg', filepath = './app/label/pictures/b1/');
+                if (item.Picture && fs.existsSync(`./app/label/pictures/b1/${item.Picture}`)) {
+                    let result = await leon.faceFeatureExtraction(item.Picture, filepath = './app/label/pictures/b1/');
                     if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
                         result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
                         _employeeLabels[item.ApplicationUserID] = {
@@ -78,11 +76,12 @@ async function initialLabels(dataset = 'all') {
                             "name": item.FirstName + ' ' + item.LastName,
                             "faceFeature": result.predictions[0].faces[0].face_feature,
                             "faceLocation": result.predictions[0].faces[0].face_location,
-                            "application": "b1"
+                            "application": "b1",
+                            "image": item.Picture
                         };
                         count += 1;
                     } else {
-                        console.log('err on face feature extraction', item.InternalID)
+                        console.log('err on face feature extraction', item.Picture)
                     }
                 }
             }
@@ -105,7 +104,8 @@ async function initialLabels(dataset = 'all') {
                             "name": item.FormattedName,
                             "faceFeature": result.predictions[0].faces[0].face_feature,
                             "faceLocation": result.predictions[0].faces[0].face_location,
-                            "application": "byd"
+                            "application": "byd",
+                            "image": item.InternalID + '.jpg',
                         };
                         count += 1;
                     } else {

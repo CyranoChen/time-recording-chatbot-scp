@@ -75,23 +75,30 @@ async function projectList() {
 }
 
 async function employeeImage(itemPic) {
-    if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
-        const cookie = await getCookies();
-        if (!cookie) { return null; }
-    }
-
+    const url = _configs.BUSINESSONE.IMAGE_URL + '/' + itemPic;
     return new Promise((resolve, reject) => {
-        const j = req.jar();
-        const cookie = req.cookie(_cookieString);
-        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + `/EmployeeImages('${itemPic}')/$value`;
-        j.setCookie(cookie, url);
-        req.get(url, {
-            jar: j,
-            rejectUnauthorized: false,
-            gzip: true
-        }).pipe(fs.createWriteStream(`./app/label/pictures/b1/${itemPic}`)).on('close', resolve).on('error', reject);
-    });
+        req.get(url).pipe(fs.createWriteStream(`./app/label/pictures/b1/${itemPic}`)).on('close', resolve).on('error', reject);
+    });   
 }
+
+// async function employeeImage(itemPic) {
+//     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
+//         const cookie = await getCookies();
+//         if (!cookie) { return null; }
+//     }
+
+//     return new Promise((resolve, reject) => {
+//         const j = req.jar();
+//         const cookie = req.cookie(_cookieString);
+//         const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + `/EmployeeImages('${itemPic}')/$value`;
+//         j.setCookie(cookie, url);
+//         req.get(url, {
+//             jar: j,
+//             rejectUnauthorized: false,
+//             gzip: true
+//         }).pipe(fs.createWriteStream(`./app/label/pictures/b1/${itemPic}`)).on('close', resolve).on('error', reject);
+//     });
+// }
 
 function processDataset(raw) {
     let results = [];
@@ -116,7 +123,8 @@ function processDataset(raw) {
                         "Picture": item.Picture
                     }
                 )
-                // employeeImage(item.Picture);
+                
+                employeeImage(item.Picture);
             }
         }
     }

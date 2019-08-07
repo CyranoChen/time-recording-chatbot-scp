@@ -119,8 +119,18 @@ app.post('/api/sync/b1/project', async function (req, res, next) {
 
 app.post('/api/sync/byd/project', async function (req, res, next) {
     console.log('[syncDatasets byd project]', new Date().toISOString());
+    console.log(req.query);
     var result = await bydservice.projectList();
-    res.send(result);
+    if (req.query && req.query.hasOwnProperty('employee')) {
+        if (req.query.hasOwnProperty('status')) {
+            res.send(bydservice.processProjectList(result, req.query.employee, req.query.status));
+        } else {
+            res.send(bydservice.processProjectList(result, req.query.employee));
+        }
+    } else {
+        res.send(result);
+    }
+
     console.log('-'.repeat(100));
 });
 

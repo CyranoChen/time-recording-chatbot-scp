@@ -6,18 +6,19 @@ module.exports = {
             "GENERAL": {
                 "THRESHOLD_SIMILAR": Number(process.env.GENERAL_THRESHOLD_SIMILAR),
                 "THRESHOLD_NUM_SIMILAR": Number(process.env.GENERAL_THRESHOLD_NUM_SIMILAR),
-                "DATASETS": process.env.GENERAL_DATASETS.toLowerCase()
+                "DATASETS": process.env.GENERAL_DATASETS.toLowerCase(),
             },
             "LEONARDO": {
                 "APIKEY": process.env.LEON_APIKEY,
                 "FACEFEATUREEXTRACTION_APIURL": process.env.LEON_FACEFEATUREEXTRACTION_APIURL,
-                "SIMILARITYSCORING_APIURL": process.env.LEON_SIMILARITYSCORING_APIURL
+                "SIMILARITYSCORING_APIURL": process.env.LEON_SIMILARITYSCORING_APIURL,
             },
             "BUSINESSONE": {
                 "SERVICELAYER_APIURL": process.env.B1_SERVICELAYER_APIURL,
                 "USERNAME": process.env.B1_USERNAME,
                 "PASSWORD": process.env.B1_PASSWORD,
-                "COMPANYDB": process.env.B1_COMPANYDB
+                "COMPANYDB": process.env.B1_COMPANYDB,
+                "IMAGE_URL": process.env.B1_IMAGE_URL,
             },
             "BYDESIGN":{
                 "TENANT_HOSTNAME": process.env.BYD_TENANT_HOSTNAME,
@@ -28,7 +29,6 @@ module.exports = {
                 "APIKEY": process.env.RECASTAI_APIKEY,
                 "DIALOG_ENDPOINTS": process.env.RECASTAI_DIALOG_ENDPOINTS,
                 "REQUEST_ENDPOINTS": process.env.RECASTAI_REQUEST_ENDPOINTS,
-                "WELCOME_MESSAGE": process.env.RECASTAI_WELCOME_MESSAGE
             }
         };
     }

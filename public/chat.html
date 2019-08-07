@@ -123,7 +123,7 @@
                     }))
                     .append($("<div />", {
                         class: "direct-chat-text"
-                    }).text(message));
+                    }).html(message));
             }
 
             var $pnlMessages = $("div#pnl-messages");
@@ -159,23 +159,25 @@
                     // console.log('session', d.session)
                     $tbChatSession.val(d.results.conversation.id);
 
-                    let message = `Hello, ${employee.name.split(' ')[0]}. `; // hello, firstname
+                    // let message = `Hello, ${employee.name.split(' ')[0]}. `; 
+                    // let initItem = createChatItem(message);
+
+                    // $pnlMessages.append(initItem)
+                    //     .animate({
+                    //         scrollTop: $pnlMessages.prop("scrollHeight")
+                    //     }, 500);
+
+                    // hello, firstname with first respsonse
+                    let message =
+                        `Hello, ${employee.name.split(' ')[0]}, ${d.results.messages[0].content}`;
                     let initItem = createChatItem(message);
 
-                    $pnlMessages.append(initItem)
-                        .animate({
-                            scrollTop: $pnlMessages.prop("scrollHeight")
-                        }, 500);
-
-                    let item = createChatItem(d.results.messages[0].content); // first respsonse
-
-                    $pnlMessages.append(item).animate({
+                    $pnlMessages.append(initItem).animate({
                         scrollTop: $pnlMessages.prop("scrollHeight")
                     }, 500);
 
                     if (window.speechSynthesis) {
-                        window.speechSynthesis.speak(
-                            new SpeechSynthesisUtterance(message + d.results.messages[0].content));
+                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(message));
                     }
                 }
             }).fail((res) => {
@@ -217,15 +219,49 @@
 
                     if (d && d.results.conversation.hasOwnProperty('id') && d.results
                         .conversation.id == $tbChatSession.val()) {
-                        for (let message of d.results.messages) {
-                            let item = createChatItem(message.content);
-                            if (window.speechSynthesis) {
-                                window.speechSynthesis.speak(
-                                    new SpeechSynthesisUtterance(message.content));
+                        if (d.results.nlp.intents.length > 0 && d.results.nlp.intents[0].slug ==
+                            'list-projects' && d.results.nlp.intents[0].confidence > 0.8) {
+                            // list projects
+                            $.post(`/api/sync/byd/project?employee=${employee.eid}&status=true`,
+                                function (d, status) {
+                                    if (status === 'success' && d && d.length > 0) {
+                                        console.log('project list', d);
+                                        let item = createChatItem(d.join('<br />'));
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Please choose your project'));
+                                        }
+
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    } else {
+                                        let item = createChatItem(
+                                            'Not found your projects');
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Not found your projects'));
+                                        }
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    }
+                                });
+                        } else {
+                            for (let message of d.results.messages) {
+                                let item = createChatItem(message.content);
+                                if (window.speechSynthesis) {
+                                    window.speechSynthesis.speak(
+                                        new SpeechSynthesisUtterance(message.content));
+                                }
+                                $pnlMessages.append(item).animate({
+                                    scrollTop: $pnlMessages.prop("scrollHeight")
+                                }, 500);
                             }
-                            $pnlMessages.append(item).animate({
-                                scrollTop: $pnlMessages.prop("scrollHeight")
-                            }, 500);
                         }
 
                         let flagFinal = false;
@@ -244,7 +280,7 @@
                             var task = d.results.conversation.memory.task.value;
 
                             var message_done =
-                                `Done. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`
+                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`
 
                         }
 
@@ -265,7 +301,7 @@
                             var time_type = d.results.conversation.memory.timeType.value;
 
                             var message_done =
-                                `Done. Record ${time_type} time from ${start_date} to ${end_date}`;
+                                `Thank you. Recorded ${time_type} time from ${start_date} to ${end_date}`;
                         }
 
                         // record time
@@ -284,9 +320,13 @@
                                 "processData": false,
                                 "data": JSON.stringify({
                                     "employee": employee.eid,
-                                    "datetime": d.results.conversation.skill === 'record-project-time' ?
-                                        new Date(d.results.conversation.memory.datetime.iso).toLocaleDateString('zh-CN') : 
-                                        new Date(d.results.conversation.memory.startDate.iso).toLocaleDateString('zh-CN'),
+                                    "datetime": d.results.conversation.skill ===
+                                        'record-project-time' ?
+                                        new Date(d.results.conversation.memory
+                                            .datetime.iso).toLocaleDateString(
+                                            'zh-CN') : new Date(d.results
+                                            .conversation.memory.startDate.iso)
+                                        .toLocaleDateString('zh-CN'),
                                     "duration": `PT${duration_hours}H0M`
                                 })
                             };

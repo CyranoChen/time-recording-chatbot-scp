@@ -6,6 +6,7 @@ const config = require('./config');
 module.exports = {
     employeeList,
     projectList,
+    processProjectList,
     recordTime,
     processDataset,
 };
@@ -88,8 +89,8 @@ async function recordTime(employeeId, datetime, duration) {
         let employeeTimeAgreementItemUUID = result.d.results[0].UUID;
 
         // startDate = endDate = datetime yyyy/mm/dd
-        let startDate = new Date(datetime).toISOString().substr(0,10) + "T00:00:00.0000000";
-        let endDate = new Date(datetime).toISOString().substr(0,10) + "T00:00:00.0000000";
+        let startDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
+        let endDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
 
         var result_record = await createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration);
         console.log('create time recording:', result_record);
@@ -152,7 +153,7 @@ async function createTimeRecording(employeeTimeAgreementItemUUID, startDate, end
                 'x-csrf-token': _token,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Cookie': _cookieString.join( "; " )
+                'Cookie': _cookieString.join("; ")
             },
             body: {
                 "EmployeeTimeAgreementItemUUID": employeeTimeAgreementItemUUID,
@@ -192,7 +193,7 @@ async function submitTimeRecording(employeeTimeObjectID) {
                 'x-csrf-token': _token,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Cookie': _cookieString.join( "; " )
+                'Cookie': _cookieString.join("; ")
             },
             json: true,
             rejectUnauthorized: false
@@ -240,6 +241,37 @@ function processDataset(raw) {
                     }
                 )
                 employeeImage(item.InternalID, item.EmployeeAttachmentFolder[0]);
+            }
+        }
+    }
+
+    return results;
+}
+
+function processProjectList(raw, employee, status = true) {
+    let results = [];
+    if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
+        for (let item of raw.d.results) {
+            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode > 3) {
+                continue; // remove the project with status 4-stopped and 5-closed
+            }
+
+            if (item.hasOwnProperty('ProjectSummaryTask') && item.ProjectSummaryTask.ProjectName != '') {
+                let projectName = item.ProjectSummaryTask.ProjectName;
+                console.log(item.ProjectSummaryTask.ResponsibleEmployeeID);
+                if (item.ProjectSummaryTask.ResponsibleEmployeeID == employee) {
+                    results.push(projectName);
+                    continue;
+                }
+
+                if (item.hasOwnProperty('Team') && item.Team.length > 0) {
+                    for (let t of item.Team) {
+                        if (t.EmployeeID == employee) {
+                            results.push(projectName);
+                            break;
+                        }
+                    }
+                }
             }
         }
     }

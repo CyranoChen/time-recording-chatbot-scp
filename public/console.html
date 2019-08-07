@@ -62,6 +62,7 @@
                         <div class="box-footer">
                             <div class="col-sm-6">
                                 <button type="button" id="btn-recognize" class="btn btn-default">Recognize</button>
+                                <button type="button" id="btn-label" class="btn btn-default">Generate Labels</button>
                             </div>
                             <div class="col-sm-6">
                                 <button type="button" id="btn-chat" class="btn btn-default">Chat</button>
@@ -97,6 +98,7 @@
                             <div class="col-sm-6 btn-group">
                                 <button type="button" id="btn-project-byd" class="btn btn-default">Sync
                                     Projects</button>
+                                <button type="button" id="btn-task-byd" class="btn btn-default">Sync Tasks</button>
                                 <button type="button" id="btn-record-byd" class="btn btn-default">Record</button>
                             </div>
                         </div>
@@ -163,6 +165,7 @@
             var $imgPreview = $("img#img-preview");
             var $taFaceRecognized = $("textarea#ta-face-recognized");
             var $btnRecognize = $("button#btn-recognize");
+            var $btnLabel = $("button#btn-label");
 
             var $tbChat = $("input#tb-chat");
             var $tbChatSession = $("input#tb-chat-session");
@@ -175,6 +178,7 @@
 
             var $taProjectByd = $("textarea#ta-project-byd");
             var $btnProjectByd = $("button#btn-project-byd");
+            var $btnTaskByd = $("button#btn-task-byd");
             var $btnRecordByd = $("button#btn-record-byd");
 
             var $taEmployeeB1 = $("textarea#ta-employee-b1");
@@ -243,7 +247,7 @@
                     "url": "https://api.recast.ai/build/v1/dialog",
                     "method": "POST",
                     "headers": {
-                        "Authorization": "Token 2a61f1569c49dab94f959c4df9fa8f73",
+                        "Authorization": "Token aa50ad58c30e4a3e62d8cd88b73c0ba6",
                         "Content-Type": "application/json",
                         "cache-control": "no-cache",
                     },
@@ -270,6 +274,18 @@
                     $btnChat.text(`Chat`).prop('disable', true);
                 }).fail((res) => {
                     alert(`${res.status} (${res.statusText})`);
+                });
+            });
+            
+            $btnLabel.click(() => {
+                $btnLabel.text('Labelling').prop('disable', false);
+                $.post("/api/train", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $btnLabel.text(`Labelled (${Object.keys(d).length})`).prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
                 });
             });
 
@@ -344,11 +360,26 @@
 
             $btnProjectByd.click(() => {
                 $btnProjectByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd/project", function (d, status) {
+                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
                         $taProjectByd.val(JSON.stringify(d, null, 2));
-                        $btnProjectByd.text(`Synced Projects (${d.d.results.length})`).prop(
+                        $btnProjectByd.text(`Synced Projects (${d.length})`).prop(
+                            'disable',
+                            true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
+
+            $btnTaskByd.click(() => {
+                $btnTaskByd.text('Syncing').prop('disable', false);
+                $.post("/api/sync/byd/project?employee=E0202&status=true", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $taProjectByd.val(JSON.stringify(d, null, 2));
+                        $btnTaskByd.text(`Synced Tasks (${d.length})`).prop(
                             'disable',
                             true);
                     } else {
@@ -382,7 +413,7 @@
                     if (res.d.results.LifeCycleStatusCode == 2) {
                         $btnRecordByd.text(
                             `Recorded (${res.d.results.LifeCycleStatusCodeText}) (${res.d.results.ApprovalStatusCodeText})`
-                            ).prop('disable', true);
+                        ).prop('disable', true);
                     }
 
                 }).fail((res) => {
