@@ -7,6 +7,7 @@ module.exports = {
     employeeList,
     projectList,
     processProjectList,
+    processTaskList,
     recordTime,
     processDataset,
 };
@@ -271,6 +272,33 @@ function processProjectList(raw, employee, status = true) {
                             break;
                         }
                     }
+                }
+            }
+        }
+    }
+
+    return results;
+}
+
+
+function processTaskList(raw, employee, projectName, status = true) {
+    let results = [];
+    if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
+        for (let item of raw.d.results) {
+            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode > 3) {
+                continue; // remove the project with status 4-stopped and 5-closed
+            }
+
+            if (item.hasOwnProperty('ProjectSummaryTask') && item.ProjectSummaryTask.ProjectName != '') {
+                if (item.ProjectSummaryTask.ProjectName.toLowerCase() != projectName.toLowerCase()) {
+                    continue; // skip the project name not matching
+                }
+
+                if (item.hasOwnProperty('Task') && item.Task.length > 0) {
+                    for (let task of item.Task) {
+                        results.push(task.TaskName);
+                    }
+                    break;
                 }
             }
         }

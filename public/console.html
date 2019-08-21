@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Tine Recording Chatbot</title>
+    <title>Time Recording Chatbot</title>
     <link rel="shortcut icon" href="/favicon">
     <link rel="stylesheet" href="resource/css/main.css">
 </head>
@@ -360,7 +360,7 @@
 
             $btnProjectByd.click(() => {
                 $btnProjectByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true", function (d, status) {
+                $.post("/api/sync/byd/project?employee=E0202&status=true", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
                         $taProjectByd.val(JSON.stringify(d, null, 2));
@@ -375,7 +375,7 @@
 
             $btnTaskByd.click(() => {
                 $btnTaskByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd/project?employee=E0202&status=true", function (d, status) {
+                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
                         $taProjectByd.val(JSON.stringify(d, null, 2));

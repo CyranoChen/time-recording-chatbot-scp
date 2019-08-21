@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Tine Recording Chatbot</title>
+    <title>Time Recording Chatbot</title>
     <link rel="shortcut icon" href="/favicon">
     <link rel="stylesheet" href="resource/css/main.css">
 </head>
@@ -244,6 +244,41 @@
                                             window.speechSynthesis.speak(
                                                 new SpeechSynthesisUtterance(
                                                     'Not found your projects'));
+                                        }
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    }
+                                });
+                        } else if (d.results.nlp.intents.length > 0 && d.results.nlp.intents[0]
+                            .slug == 'list-tasks' && d.results.nlp.intents[0].confidence > 0.8 &&
+                            d.results.conversation.memory.hasOwnProperty('project')
+                        ) {
+                            // list tasks
+                            let projectName = d.results.conversation.memory.project.value;
+                            $.post(`/api/sync/byd/task?project=${projectName}&employee=${employee.eid}&status=true`,
+                                function (d, status) {
+                                    if (status === 'success' && d && d.length > 0) {
+                                        console.log('task list', d);
+                                        let item = createChatItem(d.join('<br />'));
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Please choose your task'));
+                                        }
+
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    } else {
+                                        let item = createChatItem(
+                                            'Not found your tasks');
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Not found your tasks'));
                                         }
                                         $pnlMessages.append(item).animate({
                                             scrollTop: $pnlMessages.prop(

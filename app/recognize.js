@@ -32,7 +32,8 @@ async function searchFace(filename) {
         };
         console.log(vectors);
 
-        return await leon.similarityScoring(vectors);
+        let numSimilarVectors = vectors["1"].length > _configs.GENERAL.THRESHOLD_NUM_SIMILAR ? _configs.GENERAL.THRESHOLD_NUM_SIMILAR : vectors["1"].length;
+        return await leon.similarityScoring(vectors, numSimilarVectors = numSimilarVectors);
     } else {
         return [];
     }

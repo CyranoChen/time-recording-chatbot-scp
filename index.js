@@ -134,6 +134,24 @@ app.post('/api/sync/byd/project', async function (req, res, next) {
     console.log('-'.repeat(100));
 });
 
+app.post('/api/sync/byd/task', async function (req, res, next) {
+    console.log('[syncDatasets byd task by project]', new Date().toISOString());
+    console.log(req.query);
+    var result = await bydservice.projectList();
+    var projects = [];
+    if (req.query && req.query.hasOwnProperty('employee') && req.query.hasOwnProperty('project')) {
+        if (req.query.hasOwnProperty('status')) {
+            res.send(bydservice.processTaskList(result, req.query.employee, req.query.project, req.query.status));
+        } else {
+            res.send(bydservice.processTaskList(result, req.query.employee, req.query.project));
+        }
+    } else {
+        res.send(result);
+    }
+
+    console.log('-'.repeat(100));
+});
+
 app.post('/api/sync/byd/record', async function (req, res, next) {
     console.log('[record byd employee time]', new Date().toISOString());
     console.log(req.body);

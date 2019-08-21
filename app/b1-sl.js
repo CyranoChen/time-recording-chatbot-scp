@@ -74,11 +74,15 @@ async function projectList() {
     });
 }
 
-async function employeeImage(itemPic) {
-    const url = _configs.BUSINESSONE.IMAGE_URL + '/' + itemPic;
+async function employeeImage(employeeID, itemPic) {
+    const j = req.jar();
+    const cookie = req.cookie(_cookieString);
+    const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + `/EmployeeImages(${employeeID})/$value`;
+    j.setCookie(cookie, url);
     return new Promise((resolve, reject) => {
-        req.get(url).pipe(fs.createWriteStream(`./app/label/pictures/b1/${itemPic}`)).on('close', resolve).on('error', reject);
-    });   
+        req.get(url, { jar: j, rejectUnauthorized: false })
+            .pipe(fs.createWriteStream(`./app/label/pictures/b1/${itemPic}`)).on('close', resolve).on('error', reject);
+    });
 }
 
 // async function employeeImage(itemPic) {
@@ -123,8 +127,8 @@ function processDataset(raw) {
                         "Picture": item.Picture
                     }
                 )
-                
-                employeeImage(item.Picture);
+
+                employeeImage(item.EmployeeID, item.Picture);
             }
         }
     }
