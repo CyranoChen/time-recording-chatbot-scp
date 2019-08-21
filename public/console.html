@@ -132,6 +132,7 @@
                             <div class="col-sm-6 btn-group">
                                 <button type="button" id="btn-project-b1" class="btn btn-default">Sync
                                     Projects</button>
+                                <button type="button" id="btn-stage-b1" class="btn btn-default">Sync Stages</button>
                                 <button type="button" id="btn-record-b1" class="btn btn-default"
                                     disabled>Record</button>
                             </div>
@@ -187,6 +188,7 @@
 
             var $taProjectB1 = $("textarea#ta-project-b1");
             var $btnProjectB1 = $("button#btn-project-b1");
+            var $btnStageB1 = $("button#btn-stage-b1");
             var $btnRecordB1 = $("button#btn-record-b1");
 
             $tbImage.on('change', (e) => {
@@ -276,13 +278,14 @@
                     alert(`${res.status} (${res.statusText})`);
                 });
             });
-            
+
             $btnLabel.click(() => {
                 $btnLabel.text('Labelling').prop('disable', false);
                 $.post("/api/train", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $btnLabel.text(`Labelled (${Object.keys(d).length})`).prop('disable', true);
+                        $btnLabel.text(`Labelled (${Object.keys(d).length})`).prop('disable',
+                            true);
                     } else {
                         alert(status);
                     }
@@ -331,6 +334,22 @@
                 });
             });
 
+            $btnStageB1.click(() => {
+                $btnStageB1.text('Syncing').prop('disable', false);
+                $.post("/api/sync/b1/stage",
+                    function (d, status) {
+                        if (status === 'success' && d) {
+                            console.log(d);
+                            $taProjectB1.val(JSON.stringify(d, null, 2));
+                            $btnStageB1.text(`Synced Stages (${d.length})`).prop(
+                                'disable',
+                                true);
+                        } else {
+                            alert(status);
+                        }
+                    });
+            });
+
             $btnEmployeeByd.click(() => {
                 $btnEmployeeByd.text('Syncing').prop('disable', false);
                 $.post("/api/sync/byd/employee", function (d, status) {
@@ -375,17 +394,18 @@
 
             $btnTaskByd.click(() => {
                 $btnTaskByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true", function (d, status) {
-                    if (status === 'success' && d) {
-                        console.log(d);
-                        $taProjectByd.val(JSON.stringify(d, null, 2));
-                        $btnTaskByd.text(`Synced Tasks (${d.length})`).prop(
-                            'disable',
-                            true);
-                    } else {
-                        alert(status);
-                    }
-                });
+                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true",
+                    function (d, status) {
+                        if (status === 'success' && d) {
+                            console.log(d);
+                            $taProjectByd.val(JSON.stringify(d, null, 2));
+                            $btnTaskByd.text(`Synced Tasks (${d.length})`).prop(
+                                'disable',
+                                true);
+                        } else {
+                            alert(status);
+                        }
+                    });
             });
 
             $btnRecordByd.click(() => {

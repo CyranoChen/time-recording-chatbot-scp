@@ -259,7 +259,7 @@ function processProjectList(raw, employee, status = true) {
 
             if (item.hasOwnProperty('ProjectSummaryTask') && item.ProjectSummaryTask.ProjectName != '') {
                 let projectName = item.ProjectSummaryTask.ProjectName;
-                console.log(item.ProjectSummaryTask.ResponsibleEmployeeID);
+                // console.log(item.ProjectSummaryTask.ResponsibleEmployeeID);
                 if (item.ProjectSummaryTask.ResponsibleEmployeeID == employee) {
                     results.push(projectName);
                     continue;

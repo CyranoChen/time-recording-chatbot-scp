@@ -148,7 +148,7 @@
                 "data": JSON.stringify({
                     "session": "default",
                     "employee": employee.id,
-                    "content": "record project time" // trigger the skill
+                    "content": "record project time " + employee.app // trigger the skill
                 })
             };
 
@@ -219,73 +219,148 @@
 
                     if (d && d.results.conversation.hasOwnProperty('id') && d.results
                         .conversation.id == $tbChatSession.val()) {
+                        // skill entities list
                         if (d.results.nlp.intents.length > 0 && d.results.nlp.intents[0].slug ==
                             'list-projects' && d.results.nlp.intents[0].confidence > 0.8) {
                             // list projects
-                            $.post(`/api/sync/byd/project?employee=${employee.eid}&status=true`,
-                                function (d, status) {
-                                    if (status === 'success' && d && d.length > 0) {
-                                        console.log('project list', d);
-                                        let item = createChatItem(d.join('<br />'));
-                                        if (window.speechSynthesis) {
-                                            window.speechSynthesis.speak(
-                                                new SpeechSynthesisUtterance(
-                                                    'Please choose your project'));
-                                        }
+                            if (employee.app == 'byd') {
+                                $.post(`/api/sync/byd/project?employee=${employee.eid}&status=true`,
+                                    function (d, status) {
+                                        if (status === 'success' && d && d.length > 0) {
+                                            console.log('byd project list', d);
+                                            let item = createChatItem(
+                                                `<ul style="padding-left:20px"><li>${d.join('</li><li>')}</li></ul>`
+                                            );
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Please choose your project'));
+                                            }
 
-                                        $pnlMessages.append(item).animate({
-                                            scrollTop: $pnlMessages.prop(
-                                                "scrollHeight")
-                                        }, 500);
-                                    } else {
-                                        let item = createChatItem(
-                                            'Not found your projects');
-                                        if (window.speechSynthesis) {
-                                            window.speechSynthesis.speak(
-                                                new SpeechSynthesisUtterance(
-                                                    'Not found your projects'));
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        } else {
+                                            let item = createChatItem(
+                                                'Not found your projects');
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Not found your projects'));
+                                            }
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
                                         }
-                                        $pnlMessages.append(item).animate({
-                                            scrollTop: $pnlMessages.prop(
-                                                "scrollHeight")
-                                        }, 500);
-                                    }
-                                });
+                                    });
+                            } else if (employee.app == 'b1') {
+                                $.post(`/api/sync/b1/project`,
+                                    function (d, status) {
+                                        if (status === 'success' && d && d.length > 0) {
+                                            console.log('b1 project list', d);
+                                            let item = createChatItem(
+                                                `<ul style="padding-left:20px"><li>${d.join('</li><li>')}</li></ul>`
+                                            );
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Please choose your project'));
+                                            }
+
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        } else {
+                                            let item = createChatItem(
+                                                'Not found your projects');
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Not found your projects'));
+                                            }
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        }
+                                    });
+                            }
                         } else if (d.results.nlp.intents.length > 0 && d.results.nlp.intents[0]
-                            .slug == 'list-tasks' && d.results.nlp.intents[0].confidence > 0.8 &&
-                            d.results.conversation.memory.hasOwnProperty('project')
+                            .slug == 'list-tasks' && d.results.nlp.intents[0].confidence >
+                            0.8 && d.results.conversation.memory.hasOwnProperty('project')
                         ) {
-                            // list tasks
-                            let projectName = d.results.conversation.memory.project.value;
-                            $.post(`/api/sync/byd/task?project=${projectName}&employee=${employee.eid}&status=true`,
-                                function (d, status) {
-                                    if (status === 'success' && d && d.length > 0) {
-                                        console.log('task list', d);
-                                        let item = createChatItem(d.join('<br />'));
-                                        if (window.speechSynthesis) {
-                                            window.speechSynthesis.speak(
-                                                new SpeechSynthesisUtterance(
-                                                    'Please choose your task'));
-                                        }
+                            if (employee.app == 'byd') {
+                                // list tasks
+                                let projectName = d.results.conversation.memory.project.value;
+                                $.post(`/api/sync/byd/task?project=${projectName}&employee=${employee.eid}&status=true`,
+                                    function (d, status) {
+                                        if (status === 'success' && d && d.length > 0) {
+                                            console.log('task list', d);
+                                            let item = createChatItem(
+                                                `<ul style="padding-left:20px"><li>${d.join('</li><li>')}</li></ul>`
+                                            );
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Please choose your task'));
+                                            }
 
-                                        $pnlMessages.append(item).animate({
-                                            scrollTop: $pnlMessages.prop(
-                                                "scrollHeight")
-                                        }, 500);
-                                    } else {
-                                        let item = createChatItem(
-                                            'Not found your tasks');
-                                        if (window.speechSynthesis) {
-                                            window.speechSynthesis.speak(
-                                                new SpeechSynthesisUtterance(
-                                                    'Not found your tasks'));
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        } else {
+                                            let item = createChatItem(
+                                                'Not found your tasks');
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Not found your tasks'));
+                                            }
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
                                         }
-                                        $pnlMessages.append(item).animate({
-                                            scrollTop: $pnlMessages.prop(
-                                                "scrollHeight")
-                                        }, 500);
-                                    }
-                                });
+                                    });
+                            } else if (employee.app == 'b1') {
+                                // list stages
+                                let projectName = d.results.conversation.memory.project.value;
+                                $.post(`/api/sync/b1/stage`,
+                                    function (d, status) {
+                                        if (status === 'success' && d && d.length > 0) {
+                                            console.log('stage list', d);
+                                            let item = createChatItem(
+                                                `<ul style="padding-left:20px"><li>${d.join('</li><li>')}</li></ul>`
+                                            );
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Please choose one stage'));
+                                            }
+
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        } else {
+                                            let item = createChatItem(
+                                                'Not found stages');
+                                            if (window.speechSynthesis) {
+                                                window.speechSynthesis.speak(
+                                                    new SpeechSynthesisUtterance(
+                                                        'Not found stages'));
+                                            }
+                                            $pnlMessages.append(item).animate({
+                                                scrollTop: $pnlMessages.prop(
+                                                    "scrollHeight")
+                                            }, 500);
+                                        }
+                                    });
+                            }
                         } else {
                             for (let message of d.results.messages) {
                                 let item = createChatItem(message.content);
@@ -299,9 +374,26 @@
                             }
                         }
 
+                        // skill record time
                         let flagFinal = false;
+                        if (d.results.conversation.skill === 'record-project-time-b1' &&
+                            d.results.conversation.memory.hasOwnProperty('project') &&
+                            d.results.conversation.memory.hasOwnProperty('stage') &&
+                            d.results.conversation.memory.hasOwnProperty('datetime') &&
+                            d.results.conversation.memory.hasOwnProperty('start_time') &&
+                            d.results.conversation.memory.hasOwnProperty('end_time')) {
+                            flagFinal = true;
 
-                        if (d.results.conversation.skill === 'record-project-time' &&
+                            var start_time = d.results.conversation.memory.start_time.raw;
+                            var end_time = d.results.conversation.memory.end_time.raw;
+                            var datetime = new Date(d.results.conversation.memory.datetime.iso)
+                                .toLocaleDateString('zh-CN');
+                            var project = d.results.conversation.memory.project.value;
+                            var stage = d.results.conversation.memory.stage.value;
+
+                            var message_done =
+                                `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for stage ${stage} of project ${project}`;
+                        } else if (d.results.conversation.skill === 'record-project-time-byd' &&
                             d.results.conversation.memory.hasOwnProperty('project') &&
                             d.results.conversation.memory.hasOwnProperty('task') &&
                             d.results.conversation.memory.hasOwnProperty('datetime') &&
@@ -310,25 +402,22 @@
 
                             var duration_hours = d.results.conversation.memory.duration.hours;
                             var datetime = new Date(d.results.conversation.memory.datetime.iso)
-                                .toDateString();
+                                .toLocaleDateString('zh-CN');
                             var project = d.results.conversation.memory.project.value;
                             var task = d.results.conversation.memory.task.value;
 
                             var message_done =
-                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`
-
-                        }
-
-                        if (d.results.conversation.skill === 'record-time' &&
+                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`;
+                        } else if (d.results.conversation.skill === 'record-time' &&
                             d.results.conversation.memory.hasOwnProperty('startDate') &&
                             d.results.conversation.memory.hasOwnProperty('endDate') &&
                             d.results.conversation.memory.hasOwnProperty('timeType')) {
                             flagFinal = true;
 
                             var start_date = new Date(d.results.conversation.memory.startDate
-                                .iso).toDateString();
+                                .iso).toLocaleDateString('zh-CN');
                             var end_date = new Date(d.results.conversation.memory.end_date.iso)
-                                .toDateString();
+                                .toLocaleDateString('zh-CN');
                             var duration_hours = Math.abs(Math.round((new Date(d.results
                                     .conversation.memory.endDate.iso) -
                                 new Date(d.results.conversation.memory.startDate
@@ -339,9 +428,52 @@
                                 `Thank you. Recorded ${time_type} time from ${start_date} to ${end_date}`;
                         }
 
-                        // record time
-                        // Done! Record 1.5 hours on 2019-07-29T03:48:27+00:00 for project analyzer implementation and task installation kolllektoren
-                        if (d.results.conversation.memory.step === 'done' && flagFinal) {
+                        // record time b1
+                        //  `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for stage ${stage} of project ${project}`
+                        if (d.results.conversation.memory.step === 'done' && flagFinal && d
+                            .results.conversation.skill === 'record-project-time-b1') {
+                            console.log(d.results.conversation.skill, message_done);
+                            const settings_record = {
+                                "async": true,
+                                "crossDomain": false,
+                                "url": "/api/sync/b1/record",
+                                "method": "POST",
+                                "headers": {
+                                    "Content-Type": "application/json",
+                                    "cache-control": "no-cache",
+                                },
+                                "processData": false,
+                                "data": JSON.stringify({
+                                    "employee": employee.eid.toString(),
+                                    "datetime": datetime,
+                                    "startTime": start_time,
+                                    "endTime": end_time,
+                                    "project": project,
+                                    "stage": stage
+                                })
+                            };
+
+                            $.ajax(settings_record).done((res) => {
+                                console.log(employee.app, 'Recorded', res.DocNumber);
+
+                                let item = createChatItem(message_done);
+                                if (window.speechSynthesis) {
+                                    window.speechSynthesis.speak(
+                                        new SpeechSynthesisUtterance(
+                                            message_done));
+                                }
+                                $pnlMessages.append(item).animate({
+                                    scrollTop: $pnlMessages.prop(
+                                        "scrollHeight")
+                                }, 500);
+                            }).fail((res) => {
+                                alert(`${res.status} (${res.statusText})`);
+                            });
+                        }
+                        // record time byd
+                        // `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`
+                        else if (d.results.conversation.memory.step === 'done' && flagFinal && d
+                            .results.conversation.skill === 'record-project-time-byd') {
                             console.log(d.results.conversation.skill, message_done);
                             const settings_record = {
                                 "async": true,
@@ -355,13 +487,7 @@
                                 "processData": false,
                                 "data": JSON.stringify({
                                     "employee": employee.eid,
-                                    "datetime": d.results.conversation.skill ===
-                                        'record-project-time' ?
-                                        new Date(d.results.conversation.memory
-                                            .datetime.iso).toLocaleDateString(
-                                            'zh-CN') : new Date(d.results
-                                            .conversation.memory.startDate.iso)
-                                        .toLocaleDateString('zh-CN'),
+                                    "datetime": datetime,
                                     "duration": `PT${duration_hours}H0M`
                                 })
                             };

@@ -6,6 +6,10 @@ const config = require('./config');
 module.exports = {
     employeeList,
     projectList,
+    stageList,
+    recordTime,
+    processProjectList,
+    processStageList,
     processDataset,
 };
 
@@ -74,6 +78,61 @@ async function projectList() {
     });
 }
 
+async function stageList() {
+    if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
+        const cookie = await getCookies();
+        if (!cookie) { return null; }
+    }
+
+    return new Promise((resolve, reject) => {
+        const j = req.jar();
+        const cookie = req.cookie(_cookieString);
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementConfigurationService_GetStageTypes';
+        j.setCookie(cookie, url);
+        req.post(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
+            if (err) { reject(err); }
+            resolve(body);
+        });
+    });
+}
+
+async function recordTime(employee, datetime, startTime, endTime, project, stage) {
+    if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
+        const cookie = await getCookies();
+        if (!cookie) { return null; }
+    }
+
+    var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
+    var stageId = '1' // todo, hardcode, should be got by stage name
+
+    return new Promise((resolve, reject) => {
+        const j = req.jar();
+        const cookie = req.cookie(_cookieString);
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementConfigurationService_GetStageTypes';
+        j.setCookie(cookie, url);
+        req.post(url, {
+            body: {
+                "DateFrom": datetime,
+                "DateTo": datetime,
+                "PM_TimeSheetLineDataCollection": [
+                    {
+                        "ActivityType": "1",
+                        "Date": datetime,
+                        "EndTime": endTime,
+                        "StartTime": startTime,
+                        "FinancialProject": projectId,
+                        "StageID": stageId
+                    }
+                ],
+                "UserID": employee
+            }, json: true, jar: j, rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            resolve(body);
+        });
+    });
+}
+
 async function employeeImage(employeeID, itemPic) {
     const j = req.jar();
     const cookie = req.cookie(_cookieString);
@@ -116,7 +175,6 @@ function processDataset(raw) {
         }
 
         for (let item of raw.value) {
-            // todo
             if (item.Picture && item.Picture != '') {
                 results.push(
                     {
@@ -132,5 +190,31 @@ function processDataset(raw) {
             }
         }
     }
+    return results;
+}
+
+function processProjectList(raw, status = true) {
+    let results = [];
+    if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
+        for (let item of raw.value) {
+            if (status && item.Active != 'tYES') {
+                continue; // remove the project inactive
+            }
+
+            results.push(item.Name);
+        }
+    }
+
+    return results;
+}
+
+function processStageList(raw) {
+    let results = [];
+    if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
+        for (let item of raw.value) {
+            results.push(item.StageName);
+        }
+    }
+
     return results;
 }

@@ -113,6 +113,37 @@ app.post('/api/sync/byd/employee', async function (req, res, next) {
 app.post('/api/sync/b1/project', async function (req, res, next) {
     console.log('[syncDatasets b1 project]', new Date().toISOString());
     var result = await b1service.projectList();
+    res.send(b1service.processProjectList(result));
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/sync/b1/stage', async function (req, res, next) {
+    console.log('[syncDatasets b1 stage]', new Date().toISOString());
+    var result = await b1service.stageList();
+    res.send(b1service.processStageList(result));
+    console.log('-'.repeat(100));
+});
+
+app.post('/api/sync/b1/record', async function (req, res, next) {
+    console.log('[record b1 employee time]', new Date().toISOString());
+    console.log(req.body);
+    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') || 
+        !req.body.hasOwnProperty('startTime') || !req.body.hasOwnProperty('endTime') || 
+        !req.body.hasOwnProperty('project') || !req.body.hasOwnProperty('stage')) {
+        res.sendStatus(400);
+        return;
+    }
+
+    let employee = req.body.employee;
+    let datetime = req.body.datetime;
+    let startTime = req.body.startTime;
+    let endTime = req.body.endTime;
+    let project = req.body.project;
+    let stage = req.body.stage;
+
+    console.log('input:', employee, datetime, startTime, endTime, project, stage);
+
+    var result = await b1service.recordTime(employee, datetime, startTime, endTime, project, stage);
     res.send(result);
     console.log('-'.repeat(100));
 });
