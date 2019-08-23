@@ -133,8 +133,7 @@
                                 <button type="button" id="btn-project-b1" class="btn btn-default">Sync
                                     Projects</button>
                                 <button type="button" id="btn-stage-b1" class="btn btn-default">Sync Stages</button>
-                                <button type="button" id="btn-record-b1" class="btn btn-default"
-                                    disabled>Record</button>
+                                <button type="button" id="btn-record-b1" class="btn btn-default">Record</button>
                             </div>
                         </div>
                         <!-- /.box-footer -->
@@ -324,8 +323,8 @@
                 $.post("/api/sync/b1/project", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $taProjectB1.val(JSON.stringify(d.value, null, 2));
-                        $btnProjectB1.text(`Synced Projects (${d.value.length})`).prop(
+                        $taProjectB1.val(JSON.stringify(d, null, 2));
+                        $btnProjectB1.text(`Synced Projects (${d.length})`).prop(
                             'disable',
                             true);
                     } else {
@@ -348,6 +347,42 @@
                             alert(status);
                         }
                     });
+            });
+
+            $btnRecordB1.click(() => {
+                $btnRecordB1.text('Recording').prop('disable', false);
+                const settings = {
+                    "async": true,
+                    "crossDomain": false,
+                    "url": "/api/sync/b1/record",
+                    "method": "POST",
+                    "headers": {
+                        "Content-Type": "application/json",
+                        "cache-control": "no-cache",
+                    },
+                    "processData": false,
+                    "data": JSON.stringify({
+                        "employee": "1",
+                        "datetime": new Date().toLocaleDateString('zh-CN').replace('/', '-'), // yyyy-MM-dd
+                        "startTime": "22:30",
+                        "endTime": "23:30",
+                        "project": "project",
+                        "stage": "stage"
+                    })
+                };
+
+                $.ajax(settings).done((res) => {
+                    console.log(res);
+                    $taProjectB1.val(JSON.stringify(res, null, 2));
+                    if (res.DocNumber > 0) {
+                        $btnRecordB1.text(
+                            `Recorded (id: ${res.DocNumber})`
+                        ).prop('disable', true);
+                    }
+
+                }).fail((res) => {
+                    alert(`${res.status} (${res.statusText})`);
+                });
             });
 
             $btnEmployeeByd.click(() => {

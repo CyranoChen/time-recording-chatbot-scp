@@ -108,7 +108,7 @@ async function recordTime(employee, datetime, startTime, endTime, project, stage
     return new Promise((resolve, reject) => {
         const j = req.jar();
         const cookie = req.cookie(_cookieString);
-        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementConfigurationService_GetStageTypes';
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementTimeSheet';
         j.setCookie(cookie, url);
         req.post(url, {
             body: {
