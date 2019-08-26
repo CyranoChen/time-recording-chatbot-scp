@@ -139,7 +139,7 @@ async function postTimeSheet(employee) {
     });
 }
 
-async function recordTime(employee, datetime, startTime, endTime, project, stage) {
+async function recordTime(employee, datetime, startTime, endTime, projectId, stageId) {
     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
         const cookie = await getCookies();
         if (!cookie) { return null; }
@@ -163,8 +163,8 @@ async function recordTime(employee, datetime, startTime, endTime, project, stage
     }
 
     console.log('timesheet id:', timeSheetId);
-    var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
-    var stageId = '1' // todo, hardcode, should be got by stage name
+    // var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
+    // var stageId = '1' // todo, hardcode, should be got by stage name
 
     return new Promise((resolve, reject) => {
         const j = req.jar();

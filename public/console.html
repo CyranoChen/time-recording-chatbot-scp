@@ -298,7 +298,7 @@
                 $.post("/api/sync", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
-                        $btnLabel.text(`Syncing (${Object.keys(d).length})`).prop('disable',
+                        $btnEntity.text(`Syncing (${Object.keys(d).length})`).prop('disable',
                             true);
                     } else {
                         alert(status);

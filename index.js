@@ -127,8 +127,8 @@ app.post('/api/sync/b1/stage', async function (req, res, next) {
 app.post('/api/sync/b1/record', async function (req, res, next) {
     console.log('[record b1 employee time]', new Date().toISOString());
     console.log(req.body);
-    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') || 
-        !req.body.hasOwnProperty('startTime') || !req.body.hasOwnProperty('endTime') || 
+    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') ||
+        !req.body.hasOwnProperty('startTime') || !req.body.hasOwnProperty('endTime') ||
         !req.body.hasOwnProperty('project') || !req.body.hasOwnProperty('stage')) {
         res.sendStatus(400);
         return;
@@ -143,7 +143,28 @@ app.post('/api/sync/b1/record', async function (req, res, next) {
 
     console.log('input:', employee, datetime, startTime, endTime, project, stage);
 
-    var result = await b1service.recordTime(employee, datetime, startTime, endTime, project, stage);
+    let projectId = '-1';
+    let projects = label.getEntities('projects', dataset = 'b1');
+    if (projects.length > 0) {
+        for (let item of projects) {
+            if (item.Name.toLowerCase() == project.toLowerCase()) {
+                projectId = item.Code.toString();
+                break;
+            }
+        }
+    }
+
+    let stageId = '-1';
+    let stages = label.getEntities('stages', dataset = 'b1');
+    if (stages.length > 0) {
+        for (let item of stages) {
+            if (item.StageName.toLowerCase().replace('/', ' ') == stage.toLowerCase()) {
+                stageId = item.StageID.toString();
+            }
+        }
+    }
+
+    var result = await b1service.recordTime(employee, datetime, startTime, endTime, projectId, stageId);
     res.send(result);
     console.log('-'.repeat(100));
 });
