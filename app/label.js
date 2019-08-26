@@ -9,7 +9,10 @@ module.exports = {
     syncDatasetsB1,
     syncDatasetsByd,
     getLabels,
-    initialLabels
+    initialLabels,
+    getEntities,
+    setEntities,
+    initialEntities
 }
 
 // sync the dataset of product items from b1 hana instances
@@ -58,7 +61,7 @@ function getLabels(key) {
     }
 }
 
-// initial the labels.json by b1 product items dataset
+// initial the labels.json
 async function initialLabels(dataset = 'all') {
     _employeeLabels = {};
     if ((dataset == 'all' || dataset == 'b1') && fs.existsSync('./app/label/datasets-b1.json')) {
@@ -127,3 +130,100 @@ async function initialLabels(dataset = 'all') {
     return _employeeLabels;
 }
 
+var _entitySet;
+function getEntities(key, dataset = 'all') {
+    if (!_entitySet) {
+        _entitySet = JSON.parse(fs.readFileSync('./app/label/entities.json'));
+    }
+
+    if (dataset != 'all') {
+        return _entitySet[dataset].hasOwnProperty(key) ? _entitySet[dataset][key] : null;
+    } else {
+        return _entitySet;
+    }
+}
+
+function setEntities(key, entities, dataset) {
+    if (_entitySet.hasOwnProperty(dataset) && _entitySet[dataset].hasOwnProperty(key)) {
+        _entitySet[dataset][key] = entities;
+    }
+
+    fs.writeFile('./app/label/entities.json', JSON.stringify(_entitySet), 'utf-8', function (err) {
+        if (err) { next(err); }
+    });
+}
+
+// initial the entities.json
+async function initialEntities(dataset = 'all') {
+    _entitySet = {
+        "byd": {
+            "projects": [],
+            "tasks": []
+        },
+        "b1": {
+            "projects": [],
+            "stages": []
+        }
+    };
+
+    if (dataset == 'all' || dataset == 'b1') {
+        var projects = [];
+        var result = await b1service.projectList();
+        if (result && result.hasOwnProperty('value') && result.value.length > 0) {
+            for (let item of result.value) {
+                if (item.Active != 'tYES') {
+                    continue; // remove the project inactive
+                }
+                // add the entity set
+                projects.push(item);
+            }
+
+            console.log('b1 projects:', projects.length);
+            _entitySet.b1.projects = projects;
+        }
+
+        var stages = [];
+        var result = await b1service.stageList();
+        if (result && result.hasOwnProperty('value') && result.value.length > 0) {
+            for (let item of result.value) {
+                // add the entity set
+                stages.push(item);
+            }
+
+            console.log('b1 stages:', stages.length);
+            _entitySet.b1.stages = stages;
+        }
+    }
+
+    if (dataset == 'all' || dataset == 'byd') {
+        var projects = [];
+        var tasks = [];
+        var result = await bydservice.projectList();
+        if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
+            for (let item of result.d.results) {
+                if (item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode > 3) {
+                    continue; // remove the project with status 4-stopped and 5-closed
+                }
+                // add the entity set
+                projects.push(item);
+
+                if (item.hasOwnProperty('Task') && item.Task.length > 0) {
+                    for (let task of item.Task) {
+                        tasks.push(task);
+                    }
+                }
+            }
+
+            console.log('byd projects:', projects.length);
+            console.log('byd tasks:', tasks.length);
+            _entitySet.byd.projects = projects;
+            _entitySet.byd.tasks = tasks;
+        }
+    }
+
+    fs.writeFile('./app/label/entities.json', JSON.stringify(_entitySet), 'utf-8', function (err) {
+        if (err) { next(err); }
+    });
+
+    return _entitySet;
+}

@@ -18,7 +18,6 @@ module.exports = {
                 "USERNAME": process.env.B1_USERNAME,
                 "PASSWORD": process.env.B1_PASSWORD,
                 "COMPANYDB": process.env.B1_COMPANYDB,
-                "IMAGE_URL": process.env.B1_IMAGE_URL,
             },
             "BYDESIGN":{
                 "TENANT_HOSTNAME": process.env.BYD_TENANT_HOSTNAME,

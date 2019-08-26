@@ -2,6 +2,7 @@ const req = require('request');
 const fs = require('fs');
 
 const config = require('./config');
+const label = require('./label');
 
 module.exports = {
     employeeList,

@@ -63,6 +63,7 @@
                             <div class="col-sm-6">
                                 <button type="button" id="btn-recognize" class="btn btn-default">Recognize</button>
                                 <button type="button" id="btn-label" class="btn btn-default">Generate Labels</button>
+                                <button type="button" id="btn-entity" class="btn btn-default">Sync Entities</button>
                             </div>
                             <div class="col-sm-6">
                                 <button type="button" id="btn-chat" class="btn btn-default">Chat</button>
@@ -99,7 +100,7 @@
                                 <button type="button" id="btn-project-byd" class="btn btn-default">Sync
                                     Projects</button>
                                 <button type="button" id="btn-task-byd" class="btn btn-default">Sync Tasks</button>
-                                <button type="button" id="btn-record-byd" class="btn btn-default">Record</button>
+                                <button type="button" id="btn-record-byd" class="btn btn-default">Test</button>
                             </div>
                         </div>
                         <!-- /.box-footer -->
@@ -133,7 +134,7 @@
                                 <button type="button" id="btn-project-b1" class="btn btn-default">Sync
                                     Projects</button>
                                 <button type="button" id="btn-stage-b1" class="btn btn-default">Sync Stages</button>
-                                <button type="button" id="btn-record-b1" class="btn btn-default">Record</button>
+                                <button type="button" id="btn-record-b1" class="btn btn-default">Test</button>
                             </div>
                         </div>
                         <!-- /.box-footer -->
@@ -166,6 +167,7 @@
             var $taFaceRecognized = $("textarea#ta-face-recognized");
             var $btnRecognize = $("button#btn-recognize");
             var $btnLabel = $("button#btn-label");
+            var $btnEntity = $("button#btn-entity");
 
             var $tbChat = $("input#tb-chat");
             var $tbChatSession = $("input#tb-chat-session");
@@ -290,6 +292,19 @@
                     }
                 });
             });
+            
+            $btnEntity.click(() => {
+                $btnEntity.text('Syncing').prop('disable', false);
+                $.post("/api/sync", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $btnLabel.text(`Syncing (${Object.keys(d).length})`).prop('disable',
+                            true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
 
             $btnEmployeeB1.click(() => {
                 $btnEmployeeB1.text('Syncing').prop('disable', false);
@@ -363,7 +378,7 @@
                     "processData": false,
                     "data": JSON.stringify({
                         "employee": "1",
-                        "datetime": new Date().toLocaleDateString('zh-CN').replace('/', '-'), // yyyy-MM-dd
+                        "datetime": new Date().toLocaleDateString('zh-CN').split('/').join('-'), // yyyy-MM-dd
                         "startTime": "22:30",
                         "endTime": "23:30",
                         "project": "project",

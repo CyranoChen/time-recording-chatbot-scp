@@ -96,15 +96,32 @@ async function stageList() {
     });
 }
 
-async function recordTime(employee, datetime, startTime, endTime, project, stage) {
+async function timeSheetList(employee) {
     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
         const cookie = await getCookies();
         if (!cookie) { return null; }
     }
 
-    var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
-    var stageId = '1' // todo, hardcode, should be got by stage name
+    return new Promise((resolve, reject) => {
+        const j = req.jar();
+        const cookie = req.cookie(_cookieString);
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementTimeSheet';
+        j.setCookie(cookie, url);
+        req.get(url, {
+            qs:
+            {
+                '$select': 'AbsEntry,DocNumber,DateFrom,DateTo',
+                '$filter': `UserID eq ${employee}`
+            },
+            json: true, jar: j, rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            resolve(body);
+        });
+    });
+}
 
+async function postTimeSheet(employee) {
     return new Promise((resolve, reject) => {
         const j = req.jar();
         const cookie = req.cookie(_cookieString);
@@ -112,8 +129,50 @@ async function recordTime(employee, datetime, startTime, endTime, project, stage
         j.setCookie(cookie, url);
         req.post(url, {
             body: {
-                "DateFrom": datetime,
-                "DateTo": datetime,
+                "DateFrom": new Date().toLocaleDateString('zh-cn').replace('/', '-'),
+                "UserID": employee
+            }, json: true, jar: j, rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            resolve(body);
+        });
+    });
+}
+
+async function recordTime(employee, datetime, startTime, endTime, project, stage) {
+    if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
+        const cookie = await getCookies();
+        if (!cookie) { return null; }
+    }
+
+    var timeSheetId = -1;
+    var result = await timeSheetList(employee);
+    if (result && result.hasOwnProperty('value') && result.value.length > 0) {
+        for (let item of result.value) {
+            if (Date.parse(item.DateFrom) <= new Date().getTime() && item.DateTo == null) {
+                timeSheetId = item.DocNumber;
+                break;
+            }
+        }
+    }
+
+    if (timeSheetId < 0) {
+        // Create a new timesheet
+        var result = await postTimeSheet(employee);
+        timeSheetId = result.DocNumber;
+    }
+
+    console.log('timesheet id:', timeSheetId);
+    var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
+    var stageId = '1' // todo, hardcode, should be got by stage name
+
+    return new Promise((resolve, reject) => {
+        const j = req.jar();
+        const cookie = req.cookie(_cookieString);
+        const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + `/ProjectManagementTimeSheet(${timeSheetId})`;
+        j.setCookie(cookie, url);
+        req.patch(url, {
+            body: {
                 "PM_TimeSheetLineDataCollection": [
                     {
                         "ActivityType": "1",
@@ -123,8 +182,7 @@ async function recordTime(employee, datetime, startTime, endTime, project, stage
                         "FinancialProject": projectId,
                         "StageID": stageId
                     }
-                ],
-                "UserID": employee
+                ]
             }, json: true, jar: j, rejectUnauthorized: false
         }, (err, res, body) => {
             if (err) { reject(err); }
@@ -195,14 +253,21 @@ function processDataset(raw) {
 
 function processProjectList(raw, status = true) {
     let results = [];
+    let projects = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
         for (let item of raw.value) {
             if (status && item.Active != 'tYES') {
                 continue; // remove the project inactive
             }
 
+            // add the return array
             results.push(item.Name);
+
+            // add the entity set
+            projects.push(item);
         }
+
+        // label.setEntities('projects', projects, 'b1');
     }
 
     return results;
@@ -210,10 +275,17 @@ function processProjectList(raw, status = true) {
 
 function processStageList(raw) {
     let results = [];
+    let stages = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
         for (let item of raw.value) {
+            // add the return array
             results.push(item.StageName);
+
+            // add the entity set
+            stages.push(item);
         }
+
+        // label.setEntities('stages', stages, 'b1');
     }
 
     return results;

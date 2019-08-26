@@ -201,6 +201,13 @@ app.post('/api/sync/byd/record', async function (req, res, next) {
     console.log('-'.repeat(100));
 });
 
+app.post('/api/sync', async function (req, res, next) {
+    console.log('[initialEntities]', new Date().toISOString());
+    var result = await label.initialEntities(dataset = _configs.GENERAL.DATASET);
+    res.send(result);
+    console.log('-'.repeat(100));
+});
+
 app.post('/api/train', async function (req, res, next) {
     console.log('[initialLabels]', new Date().toISOString());
     var result = await label.initialLabels(dataset = _configs.GENERAL.DATASET);
