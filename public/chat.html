@@ -384,9 +384,12 @@
                             d.results.conversation.memory.hasOwnProperty('end_time')) {
                             flagFinal = true;
 
-                            var start_time = d.results.conversation.memory.start_time.iso.split('T')[1].substring(0, 5);
-                            var end_time = d.results.conversation.memory.end_time.iso.split('T')[1].substring(0, 5);
-                            var datetime = d.results.conversation.memory.datetime.iso.split('T')[0];
+                            var start_time = d.results.conversation.memory.start_time.iso.split(
+                                'T')[1].substring(0, 5);
+                            var end_time = d.results.conversation.memory.end_time.iso.split(
+                                'T')[1].substring(0, 5);
+                            var datetime = d.results.conversation.memory.datetime.iso.split(
+                                'T')[0];
                             var project = d.results.conversation.memory.project.value;
                             var stage = d.results.conversation.memory.stage.value;
 
@@ -400,7 +403,8 @@
                             flagFinal = true;
 
                             var duration_hours = d.results.conversation.memory.duration.hours;
-                            var datetime = d.results.conversation.memory.datetime.iso.split('T')[0];
+                            var datetime = d.results.conversation.memory.datetime.iso.split(
+                                'T')[0];
                             var project = d.results.conversation.memory.project.value;
                             var task = d.results.conversation.memory.task.value;
 
@@ -452,7 +456,8 @@
                             };
 
                             $.ajax(settings_record).done((res) => {
-                                console.log(employee.app, 'Recorded: (id)', res.DocNumber);
+                                console.log(employee.app, 'Recorded: (id)', res
+                                    .DocNumber);
 
                                 let item = createChatItem(message_done);
                                 if (window.speechSynthesis) {
