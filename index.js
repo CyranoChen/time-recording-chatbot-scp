@@ -112,14 +112,28 @@ app.post('/api/sync/byd/employee', async function (req, res, next) {
 
 app.post('/api/sync/b1/project', async function (req, res, next) {
     console.log('[syncDatasets b1 project]', new Date().toISOString());
-    var result = await b1service.projectList();
+    var result = label.getEntities('projects', 'b1');
+    if (result.length >= 0) {
+        result = { "value": result };
+        console.log('get b1 projects from cache:', result.value.length);
+    } else {
+        result = await b1service.projectList();
+        console.log('get b1 projects via api:', result.value.length)
+    }
     res.send(b1service.processProjectList(result));
     console.log('-'.repeat(100));
 });
 
 app.post('/api/sync/b1/stage', async function (req, res, next) {
     console.log('[syncDatasets b1 stage]', new Date().toISOString());
-    var result = await b1service.stageList();
+    var result = label.getEntities('stages', 'b1');
+    if (result.length >= 0) {
+        result = { "value": result };
+        console.log('get b1 stages from cache:', result.value.length);
+    } else {
+        result = await b1service.stageList();
+        console.log('get b1 stages via api:', result.value.length)
+    }
     res.send(b1service.processStageList(result));
     console.log('-'.repeat(100));
 });
@@ -172,7 +186,15 @@ app.post('/api/sync/b1/record', async function (req, res, next) {
 app.post('/api/sync/byd/project', async function (req, res, next) {
     console.log('[syncDatasets byd project]', new Date().toISOString());
     console.log(req.query);
-    var result = await bydservice.projectList();
+    var result = label.getEntities('projects', 'byd');
+    if (result.length >= 0) {
+        result = { "d": { "results": result } };
+        console.log('get byd projects from cache:', result.d.results.length);
+    } else {
+        result = await bydservice.projectList();
+        console.log('get byd projects via api:', result.d.results.length)
+    }
+
     if (req.query && req.query.hasOwnProperty('employee')) {
         if (req.query.hasOwnProperty('status')) {
             res.send(bydservice.processProjectList(result, req.query.employee, req.query.status));
@@ -180,7 +202,7 @@ app.post('/api/sync/byd/project', async function (req, res, next) {
             res.send(bydservice.processProjectList(result, req.query.employee));
         }
     } else {
-        res.send(result);
+        res.send([]);
     }
 
     console.log('-'.repeat(100));
@@ -189,8 +211,15 @@ app.post('/api/sync/byd/project', async function (req, res, next) {
 app.post('/api/sync/byd/task', async function (req, res, next) {
     console.log('[syncDatasets byd task by project]', new Date().toISOString());
     console.log(req.query);
-    var result = await bydservice.projectList();
-    var projects = [];
+    var result = label.getEntities('projects', 'byd');
+    if (result.length >= 0) {
+        result = { "d": { "results": result } };
+        console.log('get byd projects from cache:', result.d.results.length);
+    } else {
+        result = await bydservice.projectList();
+        console.log('get byd projects via api:', result.d.results.length)
+    }
+
     if (req.query && req.query.hasOwnProperty('employee') && req.query.hasOwnProperty('project')) {
         if (req.query.hasOwnProperty('status')) {
             res.send(bydservice.processTaskList(result, req.query.employee, req.query.project, req.query.status));
@@ -198,7 +227,7 @@ app.post('/api/sync/byd/task', async function (req, res, next) {
             res.send(bydservice.processTaskList(result, req.query.employee, req.query.project));
         }
     } else {
-        res.send(result);
+        res.send([]);
     }
 
     console.log('-'.repeat(100));
@@ -224,14 +253,14 @@ app.post('/api/sync/byd/record', async function (req, res, next) {
 
 app.post('/api/sync', async function (req, res, next) {
     console.log('[initialEntities]', new Date().toISOString());
-    var result = await label.initialEntities(dataset = _configs.GENERAL.DATASET);
+    var result = await label.initialEntities(dataset = _configs.GENERAL.DATASETS);
     res.send(result);
     console.log('-'.repeat(100));
 });
 
 app.post('/api/train', async function (req, res, next) {
     console.log('[initialLabels]', new Date().toISOString());
-    var result = await label.initialLabels(dataset = _configs.GENERAL.DATASET);
+    var result = await label.initialLabels(dataset = _configs.GENERAL.DATASETS);
     res.send(result);
     console.log('-'.repeat(100));
 });

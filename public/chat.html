@@ -394,7 +394,7 @@
                             var stage = d.results.conversation.memory.stage.value;
 
                             var message_done =
-                                `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for stage ${stage} of project ${project}`;
+                                `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for stage ${stage} of project ${project}.`;
                         } else if (d.results.conversation.skill === 'record-project-time-byd' &&
                             d.results.conversation.memory.hasOwnProperty('project') &&
                             d.results.conversation.memory.hasOwnProperty('task') &&
@@ -409,7 +409,7 @@
                             var task = d.results.conversation.memory.task.value;
 
                             var message_done =
-                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}`;
+                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}.`;
                         } else if (d.results.conversation.skill === 'record-time' &&
                             d.results.conversation.memory.hasOwnProperty('startDate') &&
                             d.results.conversation.memory.hasOwnProperty('endDate') &&
@@ -427,7 +427,7 @@
                             var time_type = d.results.conversation.memory.timeType.value;
 
                             var message_done =
-                                `Thank you. Recorded ${time_type} time from ${start_date} to ${end_date}`;
+                                `Thank you. Recorded ${time_type} time from ${start_date} to ${end_date}.`;
                         }
 
                         // record time b1

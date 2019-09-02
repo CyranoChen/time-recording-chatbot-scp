@@ -64,6 +64,9 @@ function getLabels(key) {
 // initial the labels.json
 async function initialLabels(dataset = 'all') {
     _employeeLabels = {};
+    dataset = dataset.toLowerCase();
+    console.log('dataset:', dataset);
+
     if ((dataset == 'all' || dataset == 'b1') && fs.existsSync('./app/label/datasets-b1.json')) {
         const ds = JSON.parse(fs.readFileSync('./app/label/datasets-b1.json'));
 
@@ -155,6 +158,7 @@ function setEntities(key, entities, dataset) {
 
 // initial the entities.json
 async function initialEntities(dataset = 'all') {
+    dataset = dataset.toLowerCase();
     _entitySet = {
         "byd": {
             "projects": [],
@@ -166,6 +170,7 @@ async function initialEntities(dataset = 'all') {
         }
     };
 
+    console.log('dataset:', dataset);
     if (dataset == 'all' || dataset == 'b1') {
         var projects = [];
         var result = await b1service.projectList();

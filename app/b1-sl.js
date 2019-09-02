@@ -253,7 +253,6 @@ function processDataset(raw) {
 
 function processProjectList(raw, status = true) {
     let results = [];
-    let projects = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
         for (let item of raw.value) {
             if (status && item.Active != 'tYES') {
@@ -262,31 +261,24 @@ function processProjectList(raw, status = true) {
 
             // add the return array
             results.push(item.Name);
-
-            // add the entity set
-            projects.push(item);
         }
 
         // label.setEntities('projects', projects, 'b1');
     }
 
-    return results;
+    return [...new Set(results)];
 }
 
 function processStageList(raw) {
     let results = [];
-    let stages = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
         for (let item of raw.value) {
             // add the return array
             results.push(item.StageName);
-
-            // add the entity set
-            stages.push(item);
         }
 
         // label.setEntities('stages', stages, 'b1');
     }
 
-    return results;
+    return [...new Set(results)];
 }

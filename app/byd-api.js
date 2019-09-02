@@ -278,7 +278,7 @@ function processProjectList(raw, employee, status = true) {
         }
     }
 
-    return results;
+    return [...new Set(results)];
 }
 
 
@@ -297,7 +297,11 @@ function processTaskList(raw, employee, projectName, status = true) {
 
                 if (item.hasOwnProperty('Task') && item.Task.length > 0) {
                     for (let task of item.Task) {
-                        results.push(task.TaskName);
+                        if (task.TaskName.toLowerCase() == projectName.toLowerCase()) {
+                            results.push('Default Task'); // set same name as project to default task
+                        } else {
+                            results.push(task.TaskName);
+                        }
                     }
                     break;
                 }
@@ -305,5 +309,5 @@ function processTaskList(raw, employee, projectName, status = true) {
         }
     }
 
-    return results;
+    return [...new Set(results)];
 }
