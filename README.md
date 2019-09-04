@@ -1,6 +1,6 @@
 # Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Leonardo
 
-![avatar](https://jam4.sapjam.com/embedded_images/show/j31qQcxyFEfkuKSy7bX4Z5)
+![avatar](https://raw.githubusercontent.com/CyranoChen/time-recording-chatbot-scp/master/resources/splash.png)
 
 This is an integration of SAP Business One or SAP Business ByDesign with SAP Leonardo. It uses SAP Leonardo APIs to start with employees face recognition and support them for recording project time.
 
@@ -62,7 +62,7 @@ Access the app from the URL route shown in the terminal
 
 ## Initial Image Labels and Entities
 
-
+Befor you start using the chatbot, it is necessary to click the button of initialing image labels and entities on console page.
 
 ## Demo app
 
