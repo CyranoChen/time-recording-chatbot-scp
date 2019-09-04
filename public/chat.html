@@ -409,7 +409,7 @@
                             var task = d.results.conversation.memory.task.value;
 
                             var message_done =
-                                `Thank you. Recorded ${duration_hours} hours on ${datetime} for task ${task} of project ${project}.`;
+                                `Thank you. Recorded ${duration_hours} hour(s) on ${datetime} for task ${task} of project ${project}.`;
                         } else if (d.results.conversation.skill === 'record-time' &&
                             d.results.conversation.memory.hasOwnProperty('startDate') &&
                             d.results.conversation.memory.hasOwnProperty('endDate') &&

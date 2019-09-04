@@ -254,7 +254,7 @@ function processProjectList(raw, employee, status = true) {
     let results = [];
     if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
         for (let item of raw.d.results) {
-            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode > 3) {
+            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode != 3) {
                 continue; // remove the project with status 4-stopped and 5-closed
             }
 
@@ -286,7 +286,7 @@ function processTaskList(raw, employee, projectName, status = true) {
     let results = [];
     if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
         for (let item of raw.d.results) {
-            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode > 3) {
+            if (status && item.hasOwnProperty('ProjectLifeCycleStatusCode') && item.ProjectLifeCycleStatusCode != 3) {
                 continue; // remove the project with status 4-stopped and 5-closed
             }
 

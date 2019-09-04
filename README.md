@@ -1,8 +1,8 @@
 # Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Leonardo
 
-![avatar](https://jam4.sapjam.com/profile/vQ2WGFrz1l1cmyPIZX6G8c/documents/exUx6J98mB0A3RqbVkE0W1/thumbnail?max_x=1200&max_y=1200)
+![avatar](https://jam4.sapjam.com/embedded_images/show/j31qQcxyFEfkuKSy7bX4Z5)
 
-This is a sample integration of SAP Business One or SAP Business ByDesign with SAP Leonardo. It uses SAP Leonardo APIs to extract the features vectors of a given input product image and then find out the smiliar items.
+This is an integration of SAP Business One or SAP Business ByDesign with SAP Leonardo. It uses SAP Leonardo APIs to start with employees face recognition and support them for recording project time.
 
 ## Overview
 
@@ -16,7 +16,7 @@ This is a sample integration of SAP Business One or SAP Business ByDesign with S
 Clone this repository
 
 ```sh
-$ git clone https://github.com/CyranoChen/spare-parts-recognition-scp
+$ git clone https://github.com/CyranoChen/time-recording-chatbot-scp
 ```
 
 Give a name to your app on the [manifest.yml](manifest.yml)
@@ -26,7 +26,7 @@ It also requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ti
 
 ```sh
 LEON_APIKEY: <-- YOUR OWN LEONARDO API KEY-->
-LEON_IMAGEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/imagefeatureextraction/feature-extraction
+LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/image/face-feature-extraction
 LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
 ```
 
@@ -60,9 +60,13 @@ $ cf push --random-route
 
 Access the app from the URL route shown in the terminal
 
+## Initial Image Labels and Entities
+
+
+
 ## Demo app
 
-There is a sample implementation [running here](https://spare-parts-recognition.cfapps.eu10.hana.ondemand.com/). Be advised that the B1 System Backend is not running 24/7
+There is a sample implementation [running here](https://time-recording-chatbot.cfapps.eu10.hana.ondemand.com). Be advised that the B1 System Backend is not running 24/7
 
 ## License
 
