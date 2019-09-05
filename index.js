@@ -279,6 +279,61 @@ app.post('/api/train/byd', async function (req, res, next) {
     console.log('-'.repeat(100));
 });
 
+app.post('/api/initial', async function (req, res, next) {
+    dataset = _configs.GENERAL.DATASETS.toLowerCase();
+    console.log('[initial]', dataset, new Date().toISOString());
+    var results = {
+        "byd": {
+            "employee": [],
+            "labels": [],
+            "projects": [],
+            "tasks": []
+        },
+        "b1": {
+            "employee": [],
+            "labels": [],
+            "projects": [],
+            "stages": []
+        }
+    };
+
+    // sync employee b1
+    if (dataset == 'all' || dataset == 'b1') {
+        var result = await label.syncDatasetsB1();
+        results.b1.employee = result;
+    }
+
+    // sync employee byd
+    if (dataset == 'all' || dataset == 'byd') {
+        var result = await label.syncDatasetsByd();
+        results.byd.employee = result;
+    }
+
+    // initial labels
+    var result = await label.initialLabels(dataset = _configs.GENERAL.DATASETS);
+    var b1Labels = [];
+    var bydLabels = [];
+    for (let key of Object.keys(result)) {
+        if (result[key].application == 'byd') {
+            bydLabels.push(result[key]);
+        } else if (result[key].application == 'b1') {
+            b1Labels.push(result[key]);
+        }
+    }
+    results.b1.labels = b1Labels;
+    results.byd.labels = bydLabels;
+
+    // initial entities
+    var result = await label.initialEntities(dataset = _configs.GENERAL.DATASETS);
+    results.b1.projects = result.b1.projects;
+    results.b1.stages = result.b1.stages;
+    results.byd.projects = result.byd.projects;
+    results.byd.tasks = result.byd.tasks;
+
+    res.send(results);
+    console.log('-'.repeat(100));
+});
+
 app.post('/api/context', async function (req, res, next) {
     console.log('[cai context]', new Date().toISOString());
     console.log(req.body);

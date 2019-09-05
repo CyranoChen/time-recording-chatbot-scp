@@ -20,9 +20,9 @@ async function syncDatasetsB1() {
     var result = await b1service.employeeList();
 
     if (result && result.hasOwnProperty('value') && result.value.length > 0) {
-        const employees = b1service.processDataset(result);
+        const employees = await b1service.processDataset(result);
         console.log('b1 employees with pictures length:', employees.length, '/', result.value.length);
-        fs.writeFile('./app/label/datasets-b1.json', JSON.stringify(employees), 'utf-8', function (err) {
+        fs.writeFileSync('./app/label/datasets-b1.json', JSON.stringify(employees), 'utf-8', function (err) {
             if (err) { next(err); }
         });
 
@@ -36,9 +36,9 @@ async function syncDatasetsB1() {
 async function syncDatasetsByd() {
     var result = await bydservice.employeeList();
     if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
-        const employees = bydservice.processDataset(result);
+        const employees = await bydservice.processDataset(result);
         console.log('byd employees with pictures length:', employees.length, '/', result.d.results.length);
-        fs.writeFile('./app/label/datasets-byd.json', JSON.stringify(employees), 'utf-8', function (err) {
+        fs.writeFileSync('./app/label/datasets-byd.json', JSON.stringify(employees), 'utf-8', function (err) {
             if (err) { next(err); }
         });
 
@@ -68,7 +68,7 @@ async function initialLabels(dataset = 'all') {
     console.log('dataset:', dataset);
 
     if ((dataset == 'all' || dataset == 'b1') && fs.existsSync('./app/label/datasets-b1.json')) {
-        const ds = JSON.parse(fs.readFileSync('./app/label/datasets-b1.json'));
+        let ds = JSON.parse(fs.readFileSync('./app/label/datasets-b1.json'));
 
         if (ds && ds.length > 0) {
             let count = 0;
@@ -96,7 +96,7 @@ async function initialLabels(dataset = 'all') {
     }
 
     if ((dataset == 'all' || dataset == 'byd') && fs.existsSync('./app/label/datasets-byd.json')) {
-        const ds = JSON.parse(fs.readFileSync('./app/label/datasets-byd.json'));
+        let ds = JSON.parse(fs.readFileSync('./app/label/datasets-byd.json'));
 
         if (ds && ds.length > 0) {
             let count = 0;

@@ -221,7 +221,7 @@ async function employeeImage(employeeID, itemPic) {
 //     });
 // }
 
-function processDataset(raw) {
+async function processDataset(raw) {
     let results = [];
     if (raw && raw.hasOwnProperty('value') && raw.value.length > 0) {
         if (!fs.existsSync('./app/label/pictures')) {
@@ -244,10 +244,11 @@ function processDataset(raw) {
                     }
                 )
 
-                employeeImage(item.EmployeeID, item.Picture);
+                await employeeImage(item.EmployeeID, item.Picture);
             }
         }
     }
+    
     return results;
 }
 

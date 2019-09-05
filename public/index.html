@@ -21,6 +21,11 @@
                 <div id="pnl-qrcode" style="display:none">
                     <h4>Scan QRcode by Mobile Camera</h4>
                 </div>
+                <div id="pnl-initial" class="row" style="text-align: center">
+                    <p id="pnl-result"></p>
+                    <button type="button" id="btn-initial" class="btn btn-initial">Initial Face Labels and
+                        Entities</button>
+                </div>
             </section>
         </div>
 
@@ -51,6 +56,9 @@
             });
             $("#footer").load("./shared/footer.html");
 
+            var $btnInitial = $("button#btn-initial");
+            var $pnlResult = $("p#pnl-result");
+
             $("#pnl-qrcode").qrcode({
                 width: 128,
                 height: 128,
@@ -58,6 +66,21 @@
             }).click(() => {
                 window.location.href = '/camera';
             }).fadeIn(500);
+
+            $btnInitial.on('click', () => {
+                $btnInitial.text('Initialing').prop('disable', false);
+                $.post("/api/initial", function (d, status) {
+                    if (status === 'success' && d) {
+                        console.log(d);
+                        $pnlResult.html(
+                            `Initialled b1 ${d.b1.labels.length}/${d.b1.employee.length} employee and ${d.b1.projects.length} projects and ${d.b1.stages.length} stages <br />` + 
+                            `Initialled byd ${d.byd.labels.length}/${d.byd.employee.length} employee and ${d.byd.projects.length} projects and ${d.byd.tasks.length} tasks`);
+                        $btnInitial.text('Initial Face Labels and Entities').prop('disable', true);
+                    } else {
+                        alert(status);
+                    }
+                });
+            });
         });
     </script>
 </body>

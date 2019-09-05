@@ -62,7 +62,7 @@ Access the app from the URL route shown in the terminal
 
 ## Initial Image Labels and Entities
 
-Befor you start using the chatbot, it is necessary to click the button of initialing image labels and entities on console page.
+Before you start using the chatbot, it is necessary to click the button of initialing image labels and entities on console page.
 
 ## Demo app
 
