@@ -1,13 +1,13 @@
-# Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Leonardo
+# Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Conversational AI powered by SAP Leonardo
 
 ![avatar](https://raw.githubusercontent.com/CyranoChen/time-recording-chatbot-scp/master/resources/splash.png)
 
-This is an integration of SAP Business One or SAP Business ByDesign with SAP Leonardo. It uses SAP Leonardo APIs to start with employees face recognition and support them for recording project time.
+This is an integration of SAP Business One or SAP Business ByDesign and SAP Conversational AI powered by SAP Leonardo. It's using SAP Leonardo for employee face recognition and supports the project time recording with SAP Conversational AI.
 
 ## Overview
 
 - It is coded in [NodeJS](https://nodejs.org/en/)
-- Can be deployed anywhere and I suggest to do it in the  [SAP Cloud Platform](https://cloudplatform.sap.com).  
+- Ready to be deployed in the  [SAP Cloud Platform](https://cloudplatform.sap.com).  
 - It is integrated with [SAP Business One](https://www.sap.com/uk/products/business-one.html) using the [Service Layer](https://www.youtube.com/watch?v=zaF_i7x9-s0&list=PLMdHXbewhZ2QsgYSICRQuoL8lkoEHjNzS&index=22) or [SAP Business ByDesign](https://www.sap.com/products/business-bydesign.html) using the [OData API](https://blogs.sap.com/2015/03/10/odata-for-sap-business-bydesign-analytics/).
 - It consumes the [SAP Leonardo APIs](https://api.sap.com/package/SAPLeonardoMLFunctionalServices?section=Artifacts) available in the SAP API Business Hub.
 
@@ -22,7 +22,7 @@ $ git clone https://github.com/CyranoChen/time-recording-chatbot-scp
 Give a name to your app on the [manifest.yml](manifest.yml)
 
 Then set the global variables configuration in [manifest]
-It also requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ticketing_classification_api/overview) which you can retrive **AFTER** login into the API Hub and clicking on GET API KEY.
+It also requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ticketing_classification_api/overview) which you can retrive **AFTER** login into the API Hub and clicking on GET API KEY in your preferences.
 
 ```sh
 LEON_APIKEY: <-- YOUR OWN LEONARDO API KEY-->
@@ -30,7 +30,7 @@ LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/i
 LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
 ```
 
-This project depends on an instance of B1 HANA environment and set the adminstrator account for accessing the service layer.
+This project depends on an instance of SAP Business One, version for SAP HANA environment and sets the adminstrator account for accessing the service layer.
 
 ```sh
 B1_SERVICELAYER_APIURL: https://<B1 hostname>:50000/b1s/v1 
@@ -39,7 +39,7 @@ B1_PASSWORD: <password>
 B1_COMPANYDB: <companydb>
 ```
 
-This project also integrate with an instance of ByDesign and set the adminstrator account for accessing the odata api of product data.
+This project also integrates with an instance of SAP Business ByDesign and set the adminstrator account for accessing the odata api of product data.
 
 The odata api [configuration profile](vmumaterial.xml) should be imported by custom odata services.
 
@@ -62,7 +62,7 @@ Access the app from the URL route shown in the terminal
 
 ## Initial Image Labels and Entities
 
-Before you start using the chatbot, it is necessary to click the button of initialing image labels and entities on console page.
+Before you start using the chatbot, it is necessary to click the button of initializing employees and projects
 
 ## Demo app
 
