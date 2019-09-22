@@ -361,6 +361,40 @@
                                         }
                                     });
                             }
+                        } else if (d.results.nlp.intents.length > 0 && d.results.nlp.intents[0]
+                            .slug == 'list-services' && d.results.nlp.intents[0].confidence >
+                            0.8 && employee.app == 'byd') {
+                            $.post(`/api/sync/byd/service`,
+                                function (d, status) {
+                                    if (status === 'success' && d && d.length > 0) {
+                                        console.log('service list', d);
+                                        let item = createChatItem(
+                                            `<ul style="padding-left:20px"><li>${d.join('</li><li>')}</li></ul>`
+                                        );
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Please choose one service'));
+                                        }
+
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    } else {
+                                        let item = createChatItem(
+                                            'Not found services');
+                                        if (window.speechSynthesis) {
+                                            window.speechSynthesis.speak(
+                                                new SpeechSynthesisUtterance(
+                                                    'Not found services'));
+                                        }
+                                        $pnlMessages.append(item).animate({
+                                            scrollTop: $pnlMessages.prop(
+                                                "scrollHeight")
+                                        }, 500);
+                                    }
+                                });
                         } else {
                             for (let message of d.results.messages) {
                                 let item = createChatItem(message.content);
@@ -398,6 +432,7 @@
                         } else if (d.results.conversation.skill === 'record-project-time-byd' &&
                             d.results.conversation.memory.hasOwnProperty('project') &&
                             d.results.conversation.memory.hasOwnProperty('task') &&
+                            d.results.conversation.memory.hasOwnProperty('service') &&
                             d.results.conversation.memory.hasOwnProperty('datetime') &&
                             d.results.conversation.memory.hasOwnProperty('duration')) {
                             flagFinal = true;
@@ -407,9 +442,10 @@
                                 'T')[0];
                             var project = d.results.conversation.memory.project.value;
                             var task = d.results.conversation.memory.task.value;
+                            var service = d.results.conversation.memory.service.value;
 
                             var message_done =
-                                `Thank you. Recorded ${duration_hours} hour(s) on ${datetime} for task ${task} of project ${project}.`;
+                                `Thank you. Recorded ${duration_hours} hour(s) on ${datetime} for task ${task} and service ${service} of project ${project}.`;
                         } else if (d.results.conversation.skill === 'record-time' &&
                             d.results.conversation.memory.hasOwnProperty('startDate') &&
                             d.results.conversation.memory.hasOwnProperty('endDate') &&
@@ -491,7 +527,10 @@
                                 "data": JSON.stringify({
                                     "employee": employee.eid,
                                     "datetime": datetime,
-                                    "duration": `PT${duration_hours}H0M`
+                                    "duration": `PT${duration_hours}H0M`,
+                                    "project": project,
+                                    "task": task,
+                                    "service": service
                                 })
                             };
 

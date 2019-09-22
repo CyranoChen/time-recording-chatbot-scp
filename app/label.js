@@ -162,7 +162,8 @@ async function initialEntities(dataset = 'all') {
     _entitySet = {
         "byd": {
             "projects": [],
-            "tasks": []
+            "tasks": [],
+            "services": []
         },
         "b1": {
             "projects": [],
@@ -223,6 +224,17 @@ async function initialEntities(dataset = 'all') {
             console.log('byd tasks:', tasks.length);
             _entitySet.byd.projects = projects;
             _entitySet.byd.tasks = tasks;
+        }
+
+        var services = [];
+        var result = await bydservice.serviceList();
+        if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
+            for (let item of result.d.results){
+                services.push(item);
+            }
+
+            console.log('byd services:', services.length);
+            _entitySet.byd.services = services;
         }
     }
 

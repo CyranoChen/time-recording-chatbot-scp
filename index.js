@@ -233,10 +233,27 @@ app.post('/api/sync/byd/task', async function (req, res, next) {
     console.log('-'.repeat(100));
 });
 
+app.post('/api/sync/byd/service', async function (req, res, next) {
+    console.log('[syncDatasets byd service]', new Date().toISOString());
+    console.log(req.query);
+    var result = label.getEntities('services', 'byd');
+    if (result && result.length >= 0) {
+        result = { "d": { "results": result } };
+        console.log('get byd services from cache:', result.d.results.length);
+    } else {
+        result = await bydservice.serviceList();
+        console.log('get byd services via api:', result.d.results.length);
+    }
+
+    res.send(bydservice.processServiceList(result));
+    console.log('-'.repeat(100));
+});
+
 app.post('/api/sync/byd/record', async function (req, res, next) {
     console.log('[record byd employee time]', new Date().toISOString());
     console.log(req.body);
-    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') || !req.body.hasOwnProperty('duration')) {
+    if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') || !req.body.hasOwnProperty('duration') ||
+        !req.body.hasOwnProperty('project') || !req.body.hasOwnProperty('task') || !req.body.hasOwnProperty('service')) {
         res.sendStatus(400);
         return;
     }
@@ -244,9 +261,42 @@ app.post('/api/sync/byd/record', async function (req, res, next) {
     let employee = req.body.employee;
     let datetime = req.body.datetime;
     let duration = req.body.duration;
-    console.log('input:', employee, datetime, duration);
+    let project = req.body.project;
+    let task = req.body.task;
+    let service = req.body.service;
+    console.log('input:', employee, datetime, duration, project, task, service);
 
-    var result = await bydservice.recordTime(employee, datetime, duration);
+    let projectId = '-1';
+    let taskId = '-1';
+    let projects = label.getEntities('projects', dataset = 'byd');
+    if (projects.length > 0) {
+        for (let item of raw.d.results) {
+            if (item.hasOwnProperty('ProjectSummaryTask') && item.ProjectSummaryTask.ResponsibleEmployeeID == employee &&
+                item.ProjectSummaryTask.ProjectName.toLowerCase() == project.toLowerCase()) {
+                projectId = item.ProjectSummaryTask.ID;
+                for (let itemTask of item.Task) {
+                    if (itemTask.LifeCycleStatusCode == '2' && (itemTask.TaskName.toLowerCase() == task.toLowerCase() ||
+                        task.toLowerCase() == 'default task' && item.ProjectSummaryTask.ProjectName.toLowerCase() == itemTask.TaskName.toLowerCase())) {
+                        taskId = itemTask.TaskID;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    let serviceId = '-1';
+    let services = label.getEntities('services', dataset = 'byd');
+    if (services.length > 0) {
+        for (let item of services) {
+            if (item.Description.toLowerCase() == service.toLowerCase()) {
+                serviceId = item.InternalID.toString();
+                break;
+            }
+        }
+    }
+
+    var result = await bydservice.recordTime(employee, datetime, duration, taskId, serviceId);
     res.send(result);
     console.log('-'.repeat(100));
 });
@@ -329,6 +379,7 @@ app.post('/api/initial', async function (req, res, next) {
     results.b1.stages = result.b1.stages;
     results.byd.projects = result.byd.projects;
     results.byd.tasks = result.byd.tasks;
+    results.byd.services = result.byd.services;
 
     res.send(results);
     console.log('-'.repeat(100));

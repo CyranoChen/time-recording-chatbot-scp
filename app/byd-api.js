@@ -7,8 +7,10 @@ const label = require('./label');
 module.exports = {
     employeeList,
     projectList,
+    serviceList,
     processProjectList,
     processTaskList,
+    processServiceList,
     recordTime,
     processDataset,
 };
@@ -83,7 +85,39 @@ async function projectList() {
     });
 }
 
-async function recordTime(employeeId, datetime, duration) {
+async function serviceList() {
+    return new Promise((resolve, reject) => {
+        req.get(_configs.BYDESIGN.TENANT_HOSTNAME + '/vmuservice/ServiceProductCollection', {
+            qs:
+            {
+                '$format': 'json',
+                // '$expand': 'ProjectSummaryTask,Task,Team',
+                '$filter': "ProcurementLifeCycleStatusCode eq '2'"
+            },
+            headers:
+            {
+                'cache-control': 'no-cache',
+                'Authorization': 'Basic ' + new Buffer(_configs.BYDESIGN.USERNAME + ':' + _configs.BYDESIGN.PASSWORD).toString('base64'),
+                'x-csrf-token': 'fetch'
+            },
+            json: true,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
+            if (err) { reject(err); }
+            if (res && res.headers.hasOwnProperty('x-csrf-token')) {
+                // x-csrf-token=LkJovn22gAJpAjVW2ZFpqw==
+                _token = res.headers['x-csrf-token'];
+                _tokenTimeout = Date.now();
+                console.log(_token, _tokenTimeout);
+                resolve(body);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+async function recordTime(employeeId, datetime, duration, taskId, serviceId) {
     var result = await getTimeAgreement(employeeId);
     console.log('get time argeement:', result);
 
@@ -94,7 +128,7 @@ async function recordTime(employeeId, datetime, duration) {
         let startDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
         let endDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
 
-        var result_record = await createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration);
+        var result_record = await createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration, taskId, serviceId);
         console.log('create time recording:', result_record);
 
         if (result_record && result_record.d.results && result_record.d.results.ObjectID != '') {
@@ -145,7 +179,7 @@ async function getTimeAgreement(employeeId) {
     });
 }
 
-async function createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration) {
+async function createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration, taskId, serviceId) {
     return new Promise((resolve, reject) => {
         req.post(_configs.BYDESIGN.TENANT_HOSTNAME + '/khemployeetime/EmployeeTimeCollection', {
             headers:
@@ -164,7 +198,9 @@ async function createTimeRecording(employeeTimeAgreementItemUUID, startDate, end
                         "TypeCode": "US0001",
                         "StartDate": startDate,
                         "EndDate": endDate,
-                        "Duration": duration
+                        "Duration": duration,
+                        "ProjectElementID": taskId,
+                        "ServiceProductID": serviceId
                     }
                 ]
             },
@@ -305,6 +341,23 @@ function processTaskList(raw, employee, projectName, status = true) {
                     }
                     break;
                 }
+            }
+        }
+    }
+
+    return [...new Set(results)];
+}
+
+function processServiceList(raw) {
+    let results = [];
+    if (raw && raw.hasOwnProperty('d') && raw.d.hasOwnProperty('results') && raw.d.results.length > 0) {
+        for (let item of raw.d.results) {
+            // if (status && item.hasOwnProperty('ProcurementLifeCycleStatusCode') && item.ProcurementLifeCycleStatusCode != 2) {
+            //     continue;
+            // }
+
+            if (item.hasOwnProperty('Description') && item.Description != '') {
+                results.push(item.Description);
             }
         }
     }

@@ -100,6 +100,7 @@
                                 <button type="button" id="btn-project-byd" class="btn btn-default">Sync
                                     Projects</button>
                                 <button type="button" id="btn-task-byd" class="btn btn-default">Sync Tasks</button>
+                                <button type="button" id="btn-service-byd" class="btn btn-default">Sync Services</button>
                                 <button type="button" id="btn-record-byd" class="btn btn-default">Test</button>
                             </div>
                         </div>
@@ -181,6 +182,7 @@
             var $taProjectByd = $("textarea#ta-project-byd");
             var $btnProjectByd = $("button#btn-project-byd");
             var $btnTaskByd = $("button#btn-task-byd");
+            var $btnServiceByd = $("button#btn-service-byd");
             var $btnRecordByd = $("button#btn-record-byd");
 
             var $taEmployeeB1 = $("textarea#ta-employee-b1");
@@ -450,6 +452,22 @@
                             console.log(d);
                             $taProjectByd.val(JSON.stringify(d, null, 2));
                             $btnTaskByd.text(`Synced Tasks (${d.length})`).prop(
+                                'disable',
+                                true);
+                        } else {
+                            alert(status);
+                        }
+                    });
+            });
+
+            $btnServiceByd.click(() => {
+                $btnServiceByd.text('Syncing').prop('disable', false);
+                $.post("/api/sync/byd/service",
+                    function (d, status) {
+                        if (status === 'success' && d) {
+                            console.log(d);
+                            $taProjectByd.val(JSON.stringify(d, null, 2));
+                            $btnServiceByd.text(`Synced Services (${d.length})`).prop(
                                 'disable',
                                 true);
                         } else {
