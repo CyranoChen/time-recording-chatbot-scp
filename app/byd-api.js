@@ -125,8 +125,10 @@ async function recordTime(employeeId, datetime, duration, taskId, serviceId) {
         let employeeTimeAgreementItemUUID = result.d.results[0].UUID;
 
         // startDate = endDate = datetime yyyy/mm/dd
-        let startDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
-        let endDate = new Date(datetime).toISOString().substr(0, 10) + "T00:00:00.0000000";
+        let startDate = datetime.split('/').join('-') + "T00:00:00.0000000";
+        let endDate = datetime.split('/').join('-') + "T00:00:00.0000000";
+        console.log(startDate, endDate);
+        console.log(taskId, serviceId);
 
         var result_record = await createTimeRecording(employeeTimeAgreementItemUUID, startDate, endDate, duration, taskId, serviceId);
         console.log('create time recording:', result_record);
@@ -170,7 +172,7 @@ async function getTimeAgreement(employeeId) {
 
                 _cookieString = res.headers['set-cookie'];
                 _cookieStringTimeout = Date.now();
-                console.log('cookie:', _cookieString, _cookieStringTimeout);
+                // console.log('cookie:', _cookieString, _cookieStringTimeout);
                 resolve(body);
             } else {
                 resolve(null);

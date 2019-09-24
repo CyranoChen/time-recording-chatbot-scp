@@ -270,7 +270,8 @@ app.post('/api/sync/byd/record', async function (req, res, next) {
     let taskId = '-1';
     let projects = label.getEntities('projects', dataset = 'byd');
     if (projects.length > 0) {
-        for (let item of raw.d.results) {
+        for (let item of projects) {
+            // console.log(item.ProjectSummaryTask.ProjectName);
             if (item.hasOwnProperty('ProjectSummaryTask') && item.ProjectSummaryTask.ResponsibleEmployeeID == employee &&
                 item.ProjectSummaryTask.ProjectName.toLowerCase() == project.toLowerCase()) {
                 projectId = item.ProjectSummaryTask.ID;

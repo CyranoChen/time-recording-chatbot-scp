@@ -100,7 +100,8 @@
                                 <button type="button" id="btn-project-byd" class="btn btn-default">Sync
                                     Projects</button>
                                 <button type="button" id="btn-task-byd" class="btn btn-default">Sync Tasks</button>
-                                <button type="button" id="btn-service-byd" class="btn btn-default">Sync Services</button>
+                                <button type="button" id="btn-service-byd" class="btn btn-default">Sync
+                                    Services</button>
                                 <button type="button" id="btn-record-byd" class="btn btn-default">Test</button>
                             </div>
                         </div>
@@ -294,7 +295,7 @@
                     }
                 });
             });
-            
+
             $btnEntity.click(() => {
                 $btnEntity.text('Syncing').prop('disable', false);
                 $.post("/api/sync", function (d, status) {
@@ -380,7 +381,8 @@
                     "processData": false,
                     "data": JSON.stringify({
                         "employee": "1",
-                        "datetime": new Date().toLocaleDateString('zh-CN').split('/').join('-'), // yyyy-MM-dd
+                        "datetime": new Date().toLocaleDateString('zh-CN').split('/').join(
+                            '-'), // yyyy-MM-dd
                         "startTime": "22:30",
                         "endTime": "23:30",
                         "project": "project",
@@ -446,7 +448,7 @@
 
             $btnTaskByd.click(() => {
                 $btnTaskByd.text('Syncing').prop('disable', false);
-                $.post("/api/sync/byd/task?project=Analyzer Implementation&employee=E0202&status=true",
+                $.post("/api/sync/byd/task?project=Sample Analyzer Implementation 2018&employee=E0202&status=true",
                     function (d, status) {
                         if (status === 'success' && d) {
                             console.log(d);
@@ -489,9 +491,12 @@
                     },
                     "processData": false,
                     "data": JSON.stringify({
-                        "employee": "E0005",
+                        "employee": "E0202",
                         "datetime": new Date().toLocaleDateString('zh-CN'),
-                        "duration": "PT8H0M"
+                        "duration": "PT1H0M",
+                        "project": "Sample Analyzer Implementation 2018",
+                        "task": "Preparation",
+                        "service": "Development"
                     })
                 };
 
