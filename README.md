@@ -22,15 +22,24 @@ $ git clone https://github.com/CyranoChen/time-recording-chatbot-scp
 Give a name to your app on the [manifest.yml](manifest.yml)
 
 Then set the global variables configuration in [manifest]
-It also requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ticketing_classification_api/overview) which you can retrive **AFTER** login into the API Hub and clicking on GET API KEY in your preferences.
+It requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ticketing_classification_api/overview) which you can retrive **AFTER** login into the API Hub and clicking on GET API KEY in your preferences.
 
 ```sh
 LEON_APIKEY: <-- YOUR OWN LEONARDO API KEY-->
 LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/image/face-feature-extraction
 LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
 ```
+It also requires to fork the [Time-Recording Bot](https://cai.tools.sap/cyrano/time-recoding/train/intents) into your SAP Conversational AI account and add the request token from it:<br> https<span>://</span>cai.tools.sap/<b>&#60;accountname&#62;</b>/time-recoding/settings/tokens.
 
-This project depends on an instance of SAP Business One, version for SAP HANA environment and sets the adminstrator account for accessing the service layer.
+```sh
+RECASTAI_APIKEY: <-- YOUR OWN REQUEST TOKEN-->
+RECASTAI_DIALOG_ENDPOINTS: https://api.cai.tools.sap/build/v1/dialog
+RECASTAI_REQUEST_ENDPOINTS: https://api.cai.tools.sap/train/v2/request
+```
+
+
+
+This project depends either on an instance of SAP Business One, version for SAP HANA environment and requires to set the adminstrator/manager account for accessing the service layer.
 
 ```sh
 B1_SERVICELAYER_APIURL: https://<B1 hostname>:50000/b1s/v1 
@@ -39,7 +48,7 @@ B1_PASSWORD: <password>
 B1_COMPANYDB: <companydb>
 ```
 
-This project also integrates with an instance of SAP Business ByDesign and set the adminstrator account for accessing the odata api of product data.
+Or it requires an instance of SAP Business ByDesign by setting the adminstrator account for accessing the odata api of product data.
 
 The odata api [configuration profile](vmumaterial.xml) should be imported by custom odata services.
 
