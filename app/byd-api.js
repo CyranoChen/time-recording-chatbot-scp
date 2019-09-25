@@ -92,7 +92,7 @@ async function serviceList() {
             {
                 '$format': 'json',
                 // '$expand': 'ProjectSummaryTask,Task,Team',
-                '$filter': "ProcurementLifeCycleStatusCode eq '2'"
+                '$filter': "BaseMeasureUnitCode eq 'HUR'"
             },
             headers:
             {

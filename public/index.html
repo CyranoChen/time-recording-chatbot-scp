@@ -67,7 +67,7 @@
             }).fadeIn(500);
 
             $btnInitial.on('click', () => {
-                $btnInitial.text('Initializng').prop('disable', false);
+                $btnInitial.text('Initializing').prop('disable', false);
                 $.post("/api/initial", function (d, status) {
                     if (status === 'success' && d) {
                         console.log(d);
