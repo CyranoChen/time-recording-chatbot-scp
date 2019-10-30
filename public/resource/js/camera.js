@@ -1,4 +1,6 @@
 $(function () {
+    $.getScript('https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js');
+
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia &&
         !browser.versions.mobile && !browser.versions.ios && !browser.versions.android &&
         !browser.versions.iPhone && !browser.versions.iPad) {
@@ -18,9 +20,9 @@ $(function () {
 
         const video = document.querySelector('video#camera-handler');
         navigator.mediaDevices.getUserMedia(constraints).
-        then((stream) => {
-            video.srcObject = stream
-        });
+            then((stream) => {
+                video.srcObject = stream
+            });
 
         $("#pnl-photo>video#camera-handler").show();
         $("button#btn-take").on('click', function () {
@@ -69,11 +71,42 @@ $(function () {
                 fr.onload = () => {
                     let img = new Image();
                     img.onload = () => {
-                        let canvas = document.querySelector('canvas');
+                        // let canvas = document.querySelector('canvas');
+                        // canvas.width = img.width;
+                        // canvas.height = img.height;
+                        // let ctx = canvas.getContext("2d");
+                        // ctx.drawImage(img, 0, 0);
+
+                        // read file metadata
+                        var orient = getPhotoOrientation(img);
+                        let canvas = document.querySelector("canvas");
+                        ctx = canvas.getContext('2d');
                         canvas.width = img.width;
                         canvas.height = img.height;
-                        let ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0);
+                        if (orient && orient != 1) {
+                            console.log('orient:', orient);
+                            switch (orient) {
+                                case 6:     // 旋转90度
+                                    canvas.width = img.height;
+                                    canvas.height = img.width;
+                                    ctx.rotate(Math.PI / 2);
+                                    // (0,-imgHeight) 从旋转原理图那里获得的起始点
+                                    ctx.drawImage(img, 0, -(img.height), img.width, img.height);
+                                    break;
+                                case 3:     // 旋转180度
+                                    ctx.rotate(Math.PI);
+                                    ctx.drawImage(img, -(img.width), -(img.height), img.width, img.height);
+                                    break;
+                                case 8:     // 旋转-90度
+                                    canvas.width = img.height;
+                                    canvas.height = img.width;
+                                    ctx.rotate(3 * Math.PI / 2);
+                                    ctx.drawImage(img, -(img.width), 0, img.width, img.height);
+                                    break;
+                            }
+                        } else {
+                            ctx.drawImage(img, 0, 0, img.width, img.height);
+                        }
 
                         $("#pnl-photo>input#tb-image-name").val(file.name);
                         $("#pnl-photo>input#tb-image-base64").val(canvas.toDataURL(file.type));
@@ -102,4 +135,13 @@ function cavasToBlob(dataURL) {
     return new Blob([new Uint8Array(array)], {
         type: 'image/png'
     });
+}
+
+//获取照片的元信息（拍摄方向）
+function getPhotoOrientation(img) {
+    var orient;
+    EXIF.getData(img, function () {
+        orient = EXIF.getTag(this, "Orientation");
+    });
+    return orient;
 }
