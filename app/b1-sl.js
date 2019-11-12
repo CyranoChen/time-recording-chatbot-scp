@@ -53,7 +53,19 @@ async function employeeList() {
         const cookie = req.cookie(_cookieString);
         const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/EmployeesInfo';
         j.setCookie(cookie, url);
-        req.get(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
+        req.get(url, {
+            qs:
+            {
+                '$select': 'ApplicationUserID,EmployeeID,FirstName,LastName,Picture'
+            },
+            headers:
+            {
+                'Prefer': 'odata.maxpagesize=0'
+            },
+            json: true,
+            jar: j,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
             if (err) { reject(err); }
             resolve(body);
         });
@@ -71,7 +83,15 @@ async function projectList() {
         const cookie = req.cookie(_cookieString);
         const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/Projects';
         j.setCookie(cookie, url);
-        req.get(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
+        req.get(url, {
+            headers:
+            {
+                'Prefer': 'odata.maxpagesize=0'
+            },
+            json: true,
+            jar: j,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
             if (err) { reject(err); }
             resolve(body);
         });
@@ -89,7 +109,15 @@ async function stageList() {
         const cookie = req.cookie(_cookieString);
         const url = _configs.BUSINESSONE.SERVICELAYER_APIURL + '/ProjectManagementConfigurationService_GetStageTypes';
         j.setCookie(cookie, url);
-        req.post(url, { json: true, jar: j, rejectUnauthorized: false }, (err, res, body) => {
+        req.post(url, {
+            headers:
+            {
+                'Prefer': 'odata.maxpagesize=0'
+            },
+            json: true,
+            jar: j,
+            rejectUnauthorized: false
+        }, (err, res, body) => {
             if (err) { reject(err); }
             resolve(body);
         });
@@ -248,7 +276,7 @@ async function processDataset(raw) {
             }
         }
     }
-    
+
     return results;
 }
 
