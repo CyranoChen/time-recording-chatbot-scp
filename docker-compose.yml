@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  jarvis:
+  time-recording-chatbot:
     container_name: time-recording-chatbot
     image: cyranochen/time-recording-chatbot:latest
     ports:
