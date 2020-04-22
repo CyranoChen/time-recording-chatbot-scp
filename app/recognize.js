@@ -1,16 +1,42 @@
 const fs = require('fs');
 
 const config = require('./config');
-const leon = require('./leonardo');
+const azure = require('./azure');
+// const leon = require('./leonardo');
 const label = require('./label')
 
 module.exports = {
-    search: searchFace,
+    //search: searchFace,
+    search: findSimilarFace,
     //score: similarityScoring,
     export: exportResult
 };
 
 const _configs = config.getConfigs();
+
+async function findSimilarFace(filename, dataset = _configs.GENERAL.DATASETS) {
+    var result = await azure.faceDetect(filename);
+    console.log('face detect:', result);
+
+    if (result && result.length > 0 && result[0].hasOwnProperty('faceId')) {
+        var result = await azure.faceFindSimilar(result[0].faceId, dataset)
+
+        console.log('face similar found:', result);
+        if (result && result.length > 0) {
+            var condinates = [];
+            for (let item of result) {
+                if (item['confidence'] > _configs.GENERAL.THRESHOLD_SIMILAR) {
+                    condinates.push(item)
+                }
+            }
+
+            return condinates;
+        }
+    }
+
+    return [];
+}
+
 
 async function searchFace(filename) {
     var result = await leon.faceFeatureExtraction(filename);
@@ -54,17 +80,32 @@ function similarityScoring(v, numSimilarVectors = 1) {
 }
 
 function exportResult(raw) {
+    // raw
+    // [
+    //     {
+    //         "persistedFaceId": "c5d8fc2b-aaef-4638-882f-20052126ed81",
+    //         "confidence": 1.0
+    //     },
+    //     {
+    //         "persistedFaceId": "199d87bf-aae0-424d-9610-da9f74b4582e",
+    //         "confidence": 1.0
+    //     }
+    // ]
+
     var results = [];
+
     for (r of raw) {
-        let item = label.getLabels(r.id);
+        let item = label.getLabels(r.persistedFaceId);
+
         if (item) {
             results.push({
-                id: r.id,
+                sid: item.systemId,
                 eid: item.id,
                 name: item.name,
                 app: item.application,
-                score: r.score,
-                image: `/library/${item.application}/${item.image}`
+                score: r.confidence,
+                image: `/library/${item.application}/${item.image}`,
+                faceid: r.persistedFaceId
             });
         }
     }

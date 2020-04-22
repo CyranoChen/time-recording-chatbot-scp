@@ -85,7 +85,7 @@
                         `<img src="./resource/img/${employee.app}-logo.png" style="height: 32px" /> Direct Chat`
                     );
                     $("img#img-me-avatar").prop('src', employee.image).prop('alt', employee.name).attr('title',
-                        `${employee.id},${employee.eid}`);
+                        `${employee.sid},${employee.eid}`);
                 } else {
                     window.location.href = '/';
                 }
@@ -147,7 +147,7 @@
                 "processData": false,
                 "data": JSON.stringify({
                     "session": "default",
-                    "employee": employee.id,
+                    "employee": employee.sid,
                     "content": "record project time " + employee.app // trigger the skill
                 })
             };
@@ -209,7 +209,7 @@
 
                 settings.data = JSON.stringify({
                     "session": $tbChatSession.val(),
-                    "employee": employee.id,
+                    "employee": employee.sid,
                     "content": $tbChat.val()
                 })
 

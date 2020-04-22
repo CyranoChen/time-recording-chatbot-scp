@@ -1,4 +1,4 @@
-FROM node:8-alpine
+FROM node:10-buster-slim
 
 LABEL maintainer="Cyrano Chen <cyrano@arsenalcn.com>"
 

@@ -65,35 +65,17 @@ app.post('/api/recognize', async function (req, res, next) {
     });
 
     var result = await recognize.search(filenameUnqiue);
-    console.log('similarity scoring:', result);
+    console.log('face condinates:', result);
 
-    if (result && result.hasOwnProperty('predictions') && result.predictions.length > 0 &&
-        result.predictions[0].hasOwnProperty('id') && (result.predictions[0].id == filenameUnqiue) &&
-        result.predictions[0].hasOwnProperty('similarVectors') && result.predictions[0].similarVectors.length > 0) {
-        var condinates = [];
-
-        for (let item of result.predictions[0].similarVectors) {
-            if (item.score > _configs.GENERAL.THRESHOLD_SIMILAR) {
-                condinates.push(item);
-            }
-        }
-
-        if (condinates.length > 0) {
-            res.send({ "state": "success", "filename": filenameUnqiue, "data": recognize.export(condinates), "raw": result.predictions[0].similarVectors });
-            console.log(condinates);
-            console.log('-'.repeat(100));
-            return;
-        } else {
-            res.send({ "state": "success", "filename": filenameUnqiue, "data": [], "raw": result.predictions[0].similarVectors });
-            console.log('no condinates');
-            console.log('-'.repeat(100));
-            return;
-        }
+    if (result.length > 0) {
+        res.send({ "state": "success", "filename": filenameUnqiue, "data": recognize.export(result) });
+        console.log('-'.repeat(100));
+        return;
+    } else {
+        res.send({ "state": "success", "filename": filenameUnqiue, "data": [] });
+        console.log('-'.repeat(100));
+        return;
     }
-
-    res.send({ "state": "success", "filename": filename, "data": [] });
-    console.log('exception on smilarity scoring');
-    console.log('-'.repeat(100));
 });
 
 app.post('/api/sync/b1/employee', async function (req, res, next) {
@@ -332,7 +314,7 @@ app.post('/api/train/byd', async function (req, res, next) {
 
 app.post('/api/initial', async function (req, res, next) {
     dataset = _configs.GENERAL.DATASETS.toLowerCase();
-    console.log('[initial]', dataset, new Date().toISOString());
+    console.log('[initial] dataset:', dataset, new Date().toISOString());
     var results = {
         "byd": {
             "employee": [],

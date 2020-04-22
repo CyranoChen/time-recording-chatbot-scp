@@ -3,7 +3,7 @@ const req = require('request');
 
 const b1service = require('./b1-sl');
 const bydservice = require('./byd-api');
-const leon = require('./leonardo');
+const azure = require('./azure');
 
 module.exports = {
     syncDatasetsB1,
@@ -67,6 +67,12 @@ async function initialLabels(dataset = 'all') {
     dataset = dataset.toLowerCase();
     console.log('dataset:', dataset);
 
+    // initialize the facelist in the Azure face container
+    var result = await azure.faceListDelete(dataset);
+    console.log('facelists deleted:', result ? result: 'done');
+    var result = await azure.faceListCreate(dataset);
+    console.log('facelists created:', result ? result : 'done');
+
     if ((dataset == 'all' || dataset == 'b1') && fs.existsSync('./app/label/datasets-b1.json')) {
         let ds = JSON.parse(fs.readFileSync('./app/label/datasets-b1.json'));
 
@@ -74,16 +80,21 @@ async function initialLabels(dataset = 'all') {
             let count = 0;
             for (let item of ds) {
                 if (item.Picture && fs.existsSync(`./app/label/pictures/b1/${item.Picture}`)) {
-                    let result = await leon.faceFeatureExtraction(item.Picture, filepath = './app/label/pictures/b1/');
-                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
-                        result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
-                        _employeeLabels[item.ApplicationUserID] = {
+                    // add face label into facelist
+                    // let result = await leon.faceFeatureExtraction(item.Picture, filepath = './app/label/pictures/b1/');
+                    let result = await azure.faceListAddFace(item.Picture, filepath = './app/label/pictures/b1/', dataset);
+                    console.log('add face:', result);
+
+                    if (result && result.hasOwnProperty('persistedFaceId')) {
+                        _employeeLabels[result['persistedFaceId']] = {
                             "id": item.EmployeeID,
+                            "systemId": item.ApplicationUserID,
                             "name": item.FirstName + ' ' + item.LastName,
-                            "faceFeature": result.predictions[0].faces[0].face_feature,
-                            "faceLocation": result.predictions[0].faces[0].face_location,
+                            // "faceFeature": result.predictions[0].faces[0].face_feature,
+                            // "faceLocation": result.predictions[0].faces[0].face_location,
                             "application": "b1",
-                            "image": item.Picture
+                            "image": item.Picture,
+                            "faceId": result['persistedFaceId']
                         };
                         count += 1;
                     } else {
@@ -102,16 +113,21 @@ async function initialLabels(dataset = 'all') {
             let count = 0;
             for (let item of ds) {
                 if (item.InternalID && fs.existsSync(`./app/label/pictures/byd/${item.InternalID}.jpg`)) {
-                    let result = await leon.faceFeatureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/');
-                    if (result && result.hasOwnProperty('predictions') && result.predictions[0].hasOwnProperty('faces') && result.predictions[0].numberOfFaces > 0 &&
-                        result.predictions[0].faces[0].hasOwnProperty('face_feature') && result.predictions[0].faces[0].hasOwnProperty('face_location')) {
-                        _employeeLabels[item.InternalID] = {
+                    // add face label into facelist
+                    // let result = await leon.faceFeatureExtraction(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/');
+                    let result = await azure.faceListAddFace(item.InternalID + '.jpg', filepath = './app/label/pictures/byd/', dataset);
+                    console.log('add face:', result);
+
+                    if (result && result.hasOwnProperty('persistedFaceId')) {
+                        _employeeLabels[result['persistedFaceId']] = {
                             "id": item.EmployeeID,
+                            "systemId": item.InternalID,
                             "name": item.FormattedName,
-                            "faceFeature": result.predictions[0].faces[0].face_feature,
-                            "faceLocation": result.predictions[0].faces[0].face_location,
+                            // "faceFeature": result.predictions[0].faces[0].face_feature,
+                            // "faceLocation": result.predictions[0].faces[0].face_location,
                             "application": "byd",
                             "image": item.InternalID + '.jpg',
+                            "faceId": result['persistedFaceId']
                         };
                         count += 1;
                     } else {
@@ -128,7 +144,6 @@ async function initialLabels(dataset = 'all') {
     fs.writeFile('./app/label/labels.json', JSON.stringify(_employeeLabels), 'utf-8', function (err) {
         if (err) { next(err); }
     });
-
 
     return _employeeLabels;
 }
@@ -229,7 +244,7 @@ async function initialEntities(dataset = 'all') {
         var services = [];
         var result = await bydservice.serviceList();
         if (result && result.hasOwnProperty('d') && result.d.hasOwnProperty('results') && result.d.results.length > 0) {
-            for (let item of result.d.results){
+            for (let item of result.d.results) {
                 services.push(item);
             }
 

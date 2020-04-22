@@ -13,6 +13,10 @@ module.exports = {
                 "FACEFEATUREEXTRACTION_APIURL": process.env.LEON_FACEFEATUREEXTRACTION_APIURL,
                 "SIMILARITYSCORING_APIURL": process.env.LEON_SIMILARITYSCORING_APIURL,
             },
+            "AZURE":{
+                "APIKEY": process.env.AZURE_APIKEY,
+                "FACE_APIURL": process.env.AZURE_FACE_APIURL
+            },
             "BUSINESSONE": {
                 "SERVICELAYER_APIURL": process.env.B1_SERVICELAYER_APIURL,
                 "USERNAME": process.env.B1_USERNAME,
