@@ -1,6 +1,6 @@
 {
   "name": "time-recording-chatbot",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "index.js",
   "description": "time recording with face recognition",
   "repository": {
@@ -23,6 +23,6 @@
     "uuid": "^3.4.0"
   },
   "engines": {
-    "node": "^10.*"
+    "node": "10.19.0"
   }
 }

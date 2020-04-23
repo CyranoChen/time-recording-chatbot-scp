@@ -157,7 +157,7 @@ async function postTimeSheet(employee) {
         j.setCookie(cookie, url);
         req.post(url, {
             body: {
-                "DateFrom": new Date().toLocaleDateString('zh-cn').replace('/', '-'),
+                "DateFrom": '2020-01-01',
                 "UserID": employee
             }, json: true, jar: j, rejectUnauthorized: false
         }, (err, res, body) => {
@@ -187,12 +187,19 @@ async function recordTime(employee, datetime, startTime, endTime, projectId, sta
     if (timeSheetId < 0) {
         // Create a new timesheet
         var result = await postTimeSheet(employee);
-        timeSheetId = result.DocNumber;
+        if (result && result.hasOwnProperty('DocNumber') && result.DocNumber > 0) {
+            timeSheetId = result.DocNumber;
+        } else {
+            console.log(result);
+            return result;
+        }
     }
 
     console.log('timesheet id:', timeSheetId);
     // var projectId = 'NSI-C20000' // todo, hardcode, should be got by project name
     // var stageId = '1' // todo, hardcode, should be got by stage name
+
+    console.log('recording time:', employee, datetime, startTime, endTime, projectId, stageId);
 
     return new Promise((resolve, reject) => {
         const j = req.jar();
