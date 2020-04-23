@@ -16,7 +16,9 @@ applications:
         LEON_APIKEY: 
         LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/image/face-feature-extraction
         LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
-        GENERAL_THRESHOLD_SIMILAR: 0.90 # similarity threshold 0~1
+        AZURE_APIKEY: 
+        AZURE_FACE_APIURL: 
+        GENERAL_THRESHOLD_SIMILAR: 0.70 # similarity threshold 0~1
         GENERAL_THRESHOLD_NUM_SIMILAR: 3 # default return 3 condinates 
         GENERAL_DATASETS: B1
         RECASTAI_APIKEY: 
