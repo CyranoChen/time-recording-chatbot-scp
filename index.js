@@ -34,7 +34,8 @@ app.use('/favicon', express.static('./favicon.ico'));
 // app.use('/node_modules', express.static('./node_modules'));
 
 // photo library file path
-app.use('/library', express.static('./app/label/pictures'))
+app.use('/library', express.static('./app/label/pictures'));
+app.use('/sample', express.static('./app/sample'));
 //app.use('/spr_img', express.static('../server/label/b1_items'));
 
 app.post('/api/recognize', async function (req, res, next) {

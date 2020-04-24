@@ -20,9 +20,9 @@ $(function () {
 
         const video = document.querySelector('video#camera-handler');
         navigator.mediaDevices.getUserMedia(constraints).
-            then((stream) => {
-                video.srcObject = stream
-            });
+        then((stream) => {
+            video.srcObject = stream
+        });
 
         $("#pnl-photo>video#camera-handler").show();
         $("button#btn-take").on('click', function () {
@@ -79,34 +79,59 @@ $(function () {
 
                         // read file metadata
                         var orient = getPhotoOrientation(img);
+                        console.log('orient:', orient);
+
                         let canvas = document.querySelector("canvas");
                         ctx = canvas.getContext('2d');
                         canvas.width = img.width;
                         canvas.height = img.height;
-                        if (orient && orient != 1) {
-                            console.log('orient:', orient);
-                            switch (orient) {
-                                case 6:     // 旋转90度
-                                    canvas.width = img.height;
-                                    canvas.height = img.width;
-                                    ctx.rotate(Math.PI / 2);
-                                    // (0,-imgHeight) 从旋转原理图那里获得的起始点
-                                    ctx.drawImage(img, 0, -(img.height), img.width, img.height);
-                                    break;
-                                case 3:     // 旋转180度
-                                    ctx.rotate(Math.PI);
-                                    ctx.drawImage(img, -(img.width), -(img.height), img.width, img.height);
-                                    break;
-                                case 8:     // 旋转-90度
-                                    canvas.width = img.height;
-                                    canvas.height = img.width;
-                                    ctx.rotate(3 * Math.PI / 2);
-                                    ctx.drawImage(img, -(img.width), 0, img.width, img.height);
-                                    break;
-                            }
-                        } else {
-                            ctx.drawImage(img, 0, 0, img.width, img.height);
-                        }
+
+                        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+                        // force to rotate -90
+                        // canvas.width = img.height;
+                        // canvas.height = img.width;
+                        // ctx.rotate(3 * Math.PI / 2);
+                        // ctx.drawImage(img, -(img.width), 0, img.width, img.height);
+
+
+                        // if (orient && orient > 0) {
+                        //     alert('orient if:', orient);
+                        //     switch (orient) {
+                        //         case 1:
+                        //             ctx.drawImage(img, 0, 0, img.width, img.height);
+                        //             break;
+                        //         case 6:     // 旋转90度
+                        //             canvas.width = img.height;
+                        //             canvas.height = img.width;
+                        //             ctx.rotate(Math.PI / 2);
+                        //             // (0,-imgHeight) 从旋转原理图那里获得的起始点
+                        //             ctx.drawImage(img, 0, -(img.height), img.width, img.height);
+                        //             break;
+                        //         case 3:     // 旋转180度
+                        //             ctx.rotate(Math.PI);
+                        //             ctx.drawImage(img, -(img.width), -(img.height), img.width, img.height);
+                        //             break;
+                        //         case 8:     // 旋转-90度
+                        //             canvas.width = img.height;
+                        //             canvas.height = img.width;
+                        //             ctx.rotate(3 * Math.PI / 2);
+                        //             ctx.drawImage(img, -(img.width), 0, img.width, img.height);
+                        //             break;
+                        //         // default:
+                        //         //     canvas.width = img.height;
+                        //         //     canvas.height = img.width;
+                        //         //     ctx.rotate(3 * Math.PI / 2);
+                        //         //     ctx.drawImage(img, -(img.width), 0, img.width, img.height);
+                        //     }                
+                        // } else {
+                        //     alert('orient else:', 'force rotate -90');
+                        //     // force to rotate -90
+                        //     canvas.width = img.height;
+                        //     canvas.height = img.width;
+                        //     ctx.rotate(3 * Math.PI / 2);
+                        //     ctx.drawImage(img, -(img.width), 0, img.width, img.height);
+                        // }
 
                         $("#pnl-photo>input#tb-image-name").val(file.name);
                         $("#pnl-photo>input#tb-image-base64").val(canvas.toDataURL(file.type));
