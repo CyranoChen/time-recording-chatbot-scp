@@ -167,7 +167,7 @@ async function postTimeSheet(employee) {
     });
 }
 
-async function recordTime(employee, datetime, startTime, endTime, projectId, stageId) {
+async function recordTime(employee, datetime, startTime, endTime, projectId, stageId=null) {
     if (!_cookieString || (Date.now() - _cookieStringTimeout) > 10 * 60 * 1000) {// 10 mins timeout
         const cookie = await getCookies();
         if (!cookie) { return null; }
@@ -214,8 +214,8 @@ async function recordTime(employee, datetime, startTime, endTime, projectId, sta
                         "Date": datetime,
                         "EndTime": endTime,
                         "StartTime": startTime,
-                        "FinancialProject": projectId,
-                        "StageID": stageId
+                        "FinancialProject": projectId
+                        //"StageID": stageId
                     }
                 ]
             }, json: true, jar: j, rejectUnauthorized: false

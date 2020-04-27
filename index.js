@@ -126,7 +126,7 @@ app.post('/api/sync/b1/record', async function (req, res, next) {
     console.log(req.body);
     if (!req.body || !req.body.hasOwnProperty('employee') || !req.body.hasOwnProperty('datetime') ||
         !req.body.hasOwnProperty('startTime') || !req.body.hasOwnProperty('endTime') ||
-        !req.body.hasOwnProperty('project') || !req.body.hasOwnProperty('stage')) {
+        !req.body.hasOwnProperty('project')) {
         res.sendStatus(400);
         return;
     }
@@ -136,7 +136,7 @@ app.post('/api/sync/b1/record', async function (req, res, next) {
     let startTime = req.body.startTime;
     let endTime = req.body.endTime;
     let project = req.body.project;
-    let stage = req.body.stage;
+    let stage = req.body.stage ? req.body.stage : null;
 
     console.log('input:', employee, datetime, startTime, endTime, project, stage);
 
@@ -151,15 +151,16 @@ app.post('/api/sync/b1/record', async function (req, res, next) {
         }
     }
 
-    let stageId = '-1';
-    let stages = label.getEntities('stages', dataset = 'b1');
-    if (stages.length > 0) {
-        for (let item of stages) {
-            if (item.StageName.toLowerCase().replace('/', ' ') == stage.toLowerCase()) {
-                stageId = item.StageID.toString();
-            }
-        }
-    }
+    let stageId = null;
+    // let stageId = '-1';
+    // let stages = label.getEntities('stages', dataset = 'b1');
+    // if (stages.length > 0) {
+    //     for (let item of stages) {
+    //         if (item.StageName.toLowerCase().replace('/', ' ') == stage.toLowerCase()) {
+    //             stageId = item.StageID.toString();
+    //         }
+    //     }
+    // }
 
     var result = await b1service.recordTime(employee, datetime, startTime, endTime, projectId, stageId);
     res.send(result);

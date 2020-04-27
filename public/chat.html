@@ -412,7 +412,7 @@
                         let flagFinal = false;
                         if (d.results.conversation.skill === 'record-project-time-b1' &&
                             d.results.conversation.memory.hasOwnProperty('project') &&
-                            d.results.conversation.memory.hasOwnProperty('stage') &&
+                            // d.results.conversation.memory.hasOwnProperty('stage') &&
                             d.results.conversation.memory.hasOwnProperty('datetime') &&
                             d.results.conversation.memory.hasOwnProperty('start_time') &&
                             d.results.conversation.memory.hasOwnProperty('end_time')) {
@@ -425,10 +425,10 @@
                             var datetime = d.results.conversation.memory.datetime.iso.split(
                                 'T')[0];
                             var project = d.results.conversation.memory.project.value;
-                            var stage = d.results.conversation.memory.stage.value;
+                            // var stage = d.results.conversation.memory.stage.value;
 
                             var message_done =
-                                `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for stage ${stage} of project ${project}.`;
+                                `Thank you. Recorded from ${start_time} to ${end_time} on ${datetime} for project ${project}.`;
                         } else if (d.results.conversation.skill === 'record-project-time-byd' &&
                             d.results.conversation.memory.hasOwnProperty('project') &&
                             d.results.conversation.memory.hasOwnProperty('task') &&
@@ -486,8 +486,8 @@
                                     "datetime": datetime,
                                     "startTime": start_time,
                                     "endTime": end_time,
-                                    "project": project,
-                                    "stage": stage
+                                    "project": project
+                                    // "stage": stage
                                 })
                             };
 
