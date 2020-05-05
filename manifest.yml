@@ -3,24 +3,21 @@ applications:
     memory: 128M
     disk_quota: 512M
     instances: 1
-    buildpacks: 
-        - https://github.com/cloudfoundry/nodejs-buildpack.git
+    buildpacks:
+      - https://github.com/cloudfoundry/nodejs-buildpack.git
     env:
-        B1_SERVICELAYER_APIURL: 
-        B1_USERNAME: 
-        B1_PASSWORD: 
-        B1_COMPANYDB: 
-        BYD_TENANT_HOSTNAME: 
-        BYD_USERNAME:  
-        BYD_PASSWORD: 
-        LEON_APIKEY: 
-        LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/image/face-feature-extraction
-        LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
-        AZURE_APIKEY: 
-        AZURE_FACE_APIURL: 
-        GENERAL_THRESHOLD_SIMILAR: 0.70 # similarity threshold 0~1
-        GENERAL_THRESHOLD_NUM_SIMILAR: 3 # default return 3 condinates 
-        GENERAL_DATASETS: B1
-        RECASTAI_APIKEY: 
-        RECASTAI_DIALOG_ENDPOINTS: https://api.cai.tools.sap/build/v1/dialog
-        RECASTAI_REQUEST_ENDPOINTS: https://api.cai.tools.sap/train/v2/request
+      B1_SERVICELAYER_APIURL: 
+      B1_USERNAME: 
+      B1_PASSWORD: 
+      B1_COMPANYDB: 
+      BYD_TENANT_HOSTNAME: 
+      BYD_USERNAME: 
+      BYD_PASSWORD: 
+      AZURE_APIKEY: 
+      AZURE_FACE_APIURL: 
+      GENERAL_THRESHOLD_SIMILAR: 0.70 # similarity threshold 0~1
+      GENERAL_THRESHOLD_NUM_SIMILAR: 3 # default return 3 condinates
+      GENERAL_DATASETS: B1
+      RECASTAI_APIKEY: 
+      RECASTAI_DIALOG_ENDPOINTS: https://api.cai.tools.sap/build/v1/dialog
+      RECASTAI_REQUEST_ENDPOINTS: https://api.cai.tools.sap/train/v2/request

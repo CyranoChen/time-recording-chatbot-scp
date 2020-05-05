@@ -1,15 +1,15 @@
-# Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Conversational AI powered by SAP Leonardo
+# Time Recording Chatbot - A Simple Integration between SAP Business One / ByDesign and SAP Conversational AI powered by Microsoft Azure Cognitive Services
 
 ![avatar](https://raw.githubusercontent.com/CyranoChen/time-recording-chatbot-scp/master/resources/splash.png)
 
-This is an integration of SAP Business One or SAP Business ByDesign and SAP Conversational AI powered by SAP Leonardo. It's using SAP Leonardo for employee face recognition and supports the project time recording with SAP Conversational AI.
+This is an integration of SAP Business One or SAP Business ByDesign and SAP Conversational AI powered by Microsoft Azure Cognitive Services. It's using the Cognitive Services Facial Recognition API for employee face recognition and supports the project time recording with SAP Conversational AI.
 
 ## Overview
 
 - It is coded in [NodeJS](https://nodejs.org/en/)
 - Ready to be deployed in the  [SAP Cloud Platform](https://cloudplatform.sap.com).  
 - It is integrated with [SAP Business One](https://www.sap.com/uk/products/business-one.html) using the [Service Layer](https://www.youtube.com/watch?v=zaF_i7x9-s0&list=PLMdHXbewhZ2QsgYSICRQuoL8lkoEHjNzS&index=22) or [SAP Business ByDesign](https://www.sap.com/products/business-bydesign.html) using the [OData API](https://blogs.sap.com/2015/03/10/odata-for-sap-business-bydesign-analytics/).
-- It consumes the [SAP Leonardo APIs](https://api.sap.com/package/SAPLeonardoMLFunctionalServices?section=Artifacts) available in the SAP API Business Hub.
+- It consumes the [Microsoft Azure Cognitive Services Facial Recognition API](https://azure.microsoft.com/en-in/services/cognitive-services/face/).
 
 ## Installation in the Cloud
 
@@ -22,12 +22,11 @@ $ git clone https://github.com/CyranoChen/time-recording-chatbot-scp
 Give a name to your app on the [manifest.yml](manifest.yml)
 
 Then set the global variables configuration in [manifest]
-It requires a [SAP Leonardo API Key](https://api.sap.com/api/sap_service_ticketing_classification_api/overview) which you can retrive **AFTER** login into the API Hub and clicking on GET API KEY in your preferences.
+It requires a [Microsoft Azure API Key](https://azure.microsoft.com/en-us/try/cognitive-services/?api=face-api) which you can retrive as **Guest** in a 7-day trial or by registering a free Microsoft Azure Account.
 
 ```sh
-LEON_APIKEY: <-- YOUR OWN LEONARDO API KEY-->
-LEON_FACEFEATUREEXTRACTION_APIURL: https://sandbox.api.sap.com/ml/api/v2alpha1/image/face-feature-extraction
-LEON_SIMILARITYSCORING_APIURL: https://sandbox.api.sap.com/ml/similarityscoring/similarity-scoring
+AZURE_APIKEY: <-- YOUR OWN MS AZURE API KEY-->
+AZURE_FACE_APIURL: <-- YOUR MS AZURE ENDPOINT-->
 ```
 It also requires to fork the [Time-Recording Bot](https://cai.tools.sap/cyrano/time-recoding/train/intents) into your SAP Conversational AI account and add the request token from it:<br> https<span>://</span>cai.tools.sap/<b>&#60;accountname&#62;</b>/time-recoding/settings/tokens.
 
