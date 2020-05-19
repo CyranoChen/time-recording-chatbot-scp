@@ -26,8 +26,10 @@ It requires a [Microsoft Azure API Key](https://azure.microsoft.com/en-us/try/co
 
 ```sh
 AZURE_APIKEY: <-- YOUR OWN MS AZURE API KEY-->
-AZURE_FACE_APIURL: <-- YOUR MS AZURE ENDPOINT-->
+AZURE_FACE_APIURL: https://<-- YOUR MS AZURE ENDPOINT-->/v1.0
 ```
+<b>Note:</b> It's required to add /v1.0 at the end of the endpoint, e.g.: https://.../face/v1.0
+
 It also requires to fork the [Time-Recording Bot](https://cai.tools.sap/cyrano/time-recoding/train/intents) into your SAP Conversational AI account and add the request token from it:<br> https<span>://</span>cai.tools.sap/<b>&#60;accountname&#62;</b>/time-recoding/settings/tokens.
 
 ```sh
